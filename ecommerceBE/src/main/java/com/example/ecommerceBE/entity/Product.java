@@ -1,5 +1,8 @@
 package com.example.ecommerceBE.entity;
 
+import com.example.ecommerceBE.entity.enums.Badge;
+import com.example.ecommerceBE.entity.enums.Gender;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,6 +34,12 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Enumerated(EnumType.STRING)
+    private Badge badge;
+
     @Column(nullable = false)
     private Integer stock = 0;
 
@@ -39,13 +48,28 @@ public class Product {
 
     private String imageUrl;
 
+    private String material;
+
+    private String care;
+
+    private String variant;
+
+    @ElementCollection
+    @CollectionTable(name = "product_sizes", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "size")
+    private List<String> sizes;
+
     @Column(nullable = false)
     private Boolean isActive = true;
 
     // Relations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Category category;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    private SizeChart sizeChart;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
