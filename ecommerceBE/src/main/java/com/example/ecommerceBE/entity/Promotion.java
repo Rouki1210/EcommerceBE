@@ -1,6 +1,5 @@
 package com.example.ecommerceBE.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -9,13 +8,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "categories", indexes = {
-        @Index(columnList = "slug"),
-        @Index(columnList = "isActive")
+@Table(name = "promotions", indexes = {
+        @Index(columnList = "isActive"),
+        @Index(columnList = "startDate"),
+        @Index(columnList = "endDate")
 })
 @Data
 @NoArgsConstructor
-public class Category {
+@AllArgsConstructor
+@Builder
+public class Promotion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -27,16 +29,24 @@ public class Category {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, unique = true)
-    private String slug;
+    @Column(nullable = false)
+    private Integer discountPercentage;
 
-    private String imageUrl;
+    @Column(nullable = false)
+    private LocalDateTime startDate;
+
+    @Column(nullable = false)
+    private LocalDateTime endDate;
 
     @Column(nullable = false)
     private Boolean isActive = true;
 
-    @OneToMany(mappedBy = "category")
-    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "promotion_products",
+            joinColumns = @JoinColumn(name = "promotion_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
     private List<Product> products;
 
     @CreationTimestamp
