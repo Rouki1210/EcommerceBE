@@ -34,6 +34,9 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Column(precision = 10, scale = 2)
+    private BigDecimal originalPrice;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
