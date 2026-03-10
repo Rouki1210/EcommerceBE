@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryRepository categoryRepository; // Tạm thời gọi trực tiếp Repo nếu chưa có Service
+    private final CategoryRepository categoryRepository;
 
     @GetMapping
     public List<Category> getAllCategories() {

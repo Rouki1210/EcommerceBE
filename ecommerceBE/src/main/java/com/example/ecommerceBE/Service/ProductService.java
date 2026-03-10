@@ -62,62 +62,53 @@ public class ProductService implements IProductService {
         productRepository.delete(product);
     }
 
-    // Thêm hàm này vào ProductService.java
+
     @Override
     public Product applySale(String productId, ProductSaleRequest request) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // 1. Lưu lại giá gốc: Chỉ lưu nếu originalPrice đang null (chưa từng sale).
-        // Nếu đang sale rồi mà admin đổi giá sale khác, thì phải giữ nguyên originalPrice gốc.
+
         if (product.getOriginalPrice() == null) {
             product.setOriginalPrice(product.getPrice());
         }
 
-        // 2. Tính toán giá mới
+
         if (request.getNewPrice() != null) {
-            // Cách 1: Admin nhập thẳng giá mới
             product.setPrice(request.getNewPrice());
 
         } else if (request.getDiscountPercentage() != null) {
-            // Cách 2: Admin nhập phần trăm. Công thức: Giá gốc * (100 - phần trăm) / 100
             BigDecimal original = product.getOriginalPrice();
             BigDecimal percentage = new BigDecimal(request.getDiscountPercentage());
 
-            // Tính số tiền được giảm = Giá gốc * (% / 100)
             BigDecimal discountAmount = original.multiply(percentage).divide(new BigDecimal(100));
-            // Giá mới = Giá gốc - Số tiền được giảm
             BigDecimal calculatedNewPrice = original.subtract(discountAmount);
 
             product.setPrice(calculatedNewPrice);
         } else {
-            throw new RuntimeException("Phải nhập giá mới hoặc phần trăm giảm!");
+            throw new RuntimeException("Must enter new price or discount percentage!");
         }
 
-        // 3. Cập nhật Badge
         product.setBadge(request.getBadge() != null ? request.getBadge() : Badge.Sale);
 
         return productRepository.save(product);
     }
 
-    // Viết thêm hàm này để Admin có thể tắt Sale
     @Override
     public Product removeSale(String productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // Nếu đang có giá gốc (đang sale), thì lấy giá gốc đập ngược lại vào giá bán
         if (product.getOriginalPrice() != null) {
             product.setPrice(product.getOriginalPrice());
-            product.setOriginalPrice(null); // Xóa giá gốc đi
+            product.setOriginalPrice(null);
         }
 
-        product.setBadge(null); // Gỡ nhãn SALE
+        product.setBadge(null);
 
         return productRepository.save(product);
     }
 
-    // Hàm phụ để tránh lặp code khi gán dữ liệu từ DTO sang Entity
     private void mapRequestToProduct(ProductRequest request, Product product, Category category) {
         product.setName(request.getName());
         product.setDescription(request.getDescription());

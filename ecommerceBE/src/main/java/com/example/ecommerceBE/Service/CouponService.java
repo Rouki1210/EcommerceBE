@@ -33,15 +33,15 @@ public class CouponService {
 
     public Coupon validateAndGetCoupon(String code) {
         Coupon coupon = couponRepository.findByCode(code.toUpperCase())
-                .orElseThrow(() -> new RuntimeException("Mã giảm giá không tồn tại!"));
+                .orElseThrow(() -> new RuntimeException("Coupon not found"));
 
         LocalDateTime now = LocalDateTime.now();
         if (!coupon.getIsActive() || now.isBefore(coupon.getStartDate()) || now.isAfter(coupon.getEndDate())) {
-            throw new RuntimeException("Mã giảm giá đã hết hạn hoặc chưa được kích hoạt!");
+            throw new RuntimeException("Coupon has expired or has not been activated");
         }
 
         if (coupon.getUsageLimit() != null && coupon.getUsedCount() >= coupon.getUsageLimit()) {
-            throw new RuntimeException("Mã giảm giá đã hết lượt sử dụng!");
+            throw new RuntimeException("Coupon is run out of uses");
         }
 
         return coupon;

@@ -45,15 +45,13 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.ok("Product deleted successfully");
     }
-    // ... các API cũ
 
-    // API Áp dụng giảm giá cho sản phẩm
     @PutMapping("/{id}/sale")
     public Product applySale(@PathVariable String id, @RequestBody ProductSaleRequest request) {
         return productService.applySale(id, request);
     }
 
-    // API Tắt giảm giá, khôi phục giá gốc
+
     @PutMapping("/{id}/remove-sale")
     public Product removeSale(@PathVariable String id) {
         return productService.removeSale(id);

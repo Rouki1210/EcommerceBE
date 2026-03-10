@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "carts_items",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"cart_id", "product_id"}) // Xử lý @@unique([cartId, productId])
+                @UniqueConstraint(columnNames = {"cart_id", "product_id"})
         },
         indexes = {
                 @Index(columnList = "cart_id"),
