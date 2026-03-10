@@ -7,10 +7,10 @@ import com.example.ecommerceBE.entity.Product;
 
 public interface IProductService {
     List<Product> getAllProducts();
-    Product getProductById(String id); // Mới: Lấy chi tiết
+    Product getProductById(String id);
     Product createProduct(ProductRequest productRequest);
-    Product updateProduct(String id, ProductRequest productRequest); // Mới: Cập nhật
-    void deleteProduct(String id); // Mới: Xóa
+    Product updateProduct(String id, ProductRequest productRequest);
+    void deleteProduct(String id);
     Product applySale(String productId, ProductSaleRequest request);
-    Product removeSale(String productId); // Cần có hàm để tắt sale, đưa giá về ban đầu
+    Product removeSale(String productId);
 }
