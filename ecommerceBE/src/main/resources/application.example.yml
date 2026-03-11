@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres?user=postgres.qkjtuyngolacqpyrzfag&password=yVZA5KKyBSUjv2DJ
-    username: postgres
+    url: url
+    username: username
     password: [Password]
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: name
 
   servlet:
     multipart:
@@ -23,6 +23,6 @@ server:
   port: 8080
 
 cloudinary:
-  cloud-name: di3ejp2lq
-  api-key: 254145199363621
-  api-secret: IIRgk0uGPg-vzB7arArSV-VUty4
+  cloud-name: name
+  api-key: key
+  api-secret: secret
