@@ -1,5 +1,6 @@
 package com.example.ecommerceBE.entity;
 
+import com.example.ecommerceBE.entity.enums.Provider;
 import com.example.ecommerceBE.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,6 +35,11 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
+    private Provider provider = Provider.LOCAL;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role = Role.USER;
 
     private String refreshToken;
@@ -54,4 +60,16 @@ public class User {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(name = "verify_token", length = 255)
+    private String verifyToken;
+
+    @Column(name = "verify_token_expiry")
+    private LocalDateTime verifyTokenExpiry;
+
+    @Column(name = "reset_token", length = 100)
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
 }
