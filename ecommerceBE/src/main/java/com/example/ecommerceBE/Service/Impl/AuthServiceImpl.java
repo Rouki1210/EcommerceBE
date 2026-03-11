@@ -8,6 +8,7 @@ import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.AuthService;
 import com.example.ecommerceBE.Service.EmailService;
 import com.example.ecommerceBE.Config.JwtUtil;
+import com.example.ecommerceBE.entity.enums.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,7 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Token đã hết hạn");
         }
 
+        user.setStatus(Status.ACTIVE);
         user.setVerifyToken(null);
         user.setVerifyTokenExpiry(null);
         userRepository.save(user);
@@ -77,13 +79,14 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
 
-        if (user.getVerifyToken() != null) {
+        if (user.getStatus() == Status.INACTIVE) {
             throw new RuntimeException("Tài khoản chưa được xác thực email");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Email hoặc mật khẩu không đúng");
         }
+
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
