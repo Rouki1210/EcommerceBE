@@ -11,4 +11,5 @@ public class ProductRequest {
     private String sku;
     private String imageUrl;
     private String categoryId;
+    private String[] size;
 }
