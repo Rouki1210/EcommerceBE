@@ -33,4 +33,4 @@ build/
 .vscode/
 
 # Development environment files
-application.yml
+src/main/resources/application.exam.yml
