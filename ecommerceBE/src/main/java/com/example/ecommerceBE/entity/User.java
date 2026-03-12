@@ -2,6 +2,7 @@ package com.example.ecommerceBE.entity;
 
 import com.example.ecommerceBE.entity.enums.Provider;
 import com.example.ecommerceBE.entity.enums.Role;
+import com.example.ecommerceBE.entity.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -53,6 +54,11 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Payment> payments;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private Status status = Status.INACTIVE;
 
     @CreationTimestamp
     @Column(updatable = false)
