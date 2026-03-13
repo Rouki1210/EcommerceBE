@@ -45,4 +45,9 @@ public class AuthController {
             @RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(authService.changePassword(authHeader, request));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMe(@RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(authService.getMe(authHeader));
+    }
 }

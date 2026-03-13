@@ -161,4 +161,22 @@ public class AuthServiceImpl implements AuthService {
                 .message("Đổi mật khẩu thành công!")
                 .build();
     }
+
+    @Override
+    public UserResponse getMe(String authHeader) {
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole().name())
+                .status(user.getStatus().name())
+                .build();
+    }
 }

@@ -9,4 +9,5 @@ public interface AuthService {
     ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request);
     ResetPasswordResponse resetPassword(ResetPasswordRequest request);
     ChangePasswordResponse changePassword(String authHeader, ChangePasswordRequest request);
+    UserResponse getMe(String authHeader);
 }
