@@ -3,8 +3,10 @@ package com.example.ecommerceBE.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.example.ecommerceBE.Dtos.ProductResponsive;
 import com.example.ecommerceBE.Dtos.ProductSaleRequest;
 import com.example.ecommerceBE.entity.enums.Badge;
+import com.example.ecommerceBE.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
 import com.example.ecommerceBE.Dtos.ProductRequest;
 import com.example.ecommerceBE.Repository.CategoryRepository;
@@ -23,8 +25,10 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductResponsive> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        return  products.stream().map(ProductMapper ::mapToResponse)
+                .toList();
     }
 
     @Override
