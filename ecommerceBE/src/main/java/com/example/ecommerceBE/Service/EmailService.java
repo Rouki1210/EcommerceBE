@@ -141,7 +141,7 @@ public class EmailService {
             mailSender.get().send(msg);
             System.out.println("[MAIL] Gửi thành công đến: " + to);
         } catch (MessagingException e) {
-            System.out.println("[MAIL] Lỗi gửi mail: " + e.getMessage());
+                System.out.println("[MAIL] Lỗi gửi mail: " + e.getMessage());
             throw new RuntimeException("Không thể gửi email: " + e.getMessage());
         }
     }
