@@ -1,5 +1,6 @@
 package com.example.ecommerceBE.Config;
 
+import com.example.ecommerceBE.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
+
 public class SecurityConfig {
 
     private final UserRepository userRepository;
@@ -65,7 +66,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 // 2. Gắn AuthenticationProvider mới vào đây
-                .authenticationProvider(authenticationProvider());
+                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
 
