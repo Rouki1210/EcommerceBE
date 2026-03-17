@@ -44,8 +44,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/products").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN")
-
-                        // 3. Tất cả các request khác phải có Token
+                        .requestMatchers("/admin/auth/login").permitAll()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session

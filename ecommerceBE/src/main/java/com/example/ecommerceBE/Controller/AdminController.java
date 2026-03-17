@@ -1,7 +1,10 @@
 package com.example.ecommerceBE.Controller;
 
+import com.example.ecommerceBE.Dtos.Auth.LoginRequest;
+import com.example.ecommerceBE.Dtos.Auth.LoginResponse;
 import com.example.ecommerceBE.Dtos.Auth.UserResponse;
 import com.example.ecommerceBE.Service.AdminService;
+import jakarta.validation.Valid;
 import lombok.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +20,11 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(adminService.getAllUsers());
+    }
+
+    @PostMapping("/auth/login")
+    public ResponseEntity<LoginResponse> adminLogin(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(adminService.adminLogin(request));
     }
 
     @GetMapping("/users/admins")
