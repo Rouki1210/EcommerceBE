@@ -8,6 +8,7 @@ import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Role;
 import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.AdminService;
+import com.example.ecommerceBE.mapper.UserMapper;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,13 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserResponse> getAllUsers() {
         return userRepository.findByRole(Role.USER)
                 .stream()
-                .map(this::mapToUserResponse)
+                .map(userMapper::toUserResponse)
                 .collect(Collectors.toList());
     }
 
@@ -34,7 +36,7 @@ public class AdminServiceImpl implements AdminService {
     public List<UserResponse> getAllAdmins() {
         return userRepository.findByRole(Role.ADMIN)
                 .stream()
-                .map(this::mapToUserResponse)
+                .map(userMapper::toUserResponse)
                 .collect(Collectors.toList());
     }
 
@@ -68,7 +70,7 @@ public class AdminServiceImpl implements AdminService {
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
-        return mapToUserResponse(user);
+        return userMapper.toUserResponse(user);
     }
 
     @Override
@@ -91,17 +93,6 @@ public class AdminServiceImpl implements AdminService {
         }
 
         userRepository.save(user);
-        return mapToUserResponse(user);
-    }
-
-    private UserResponse mapToUserResponse(User user) {
-        return UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .role(user.getRole().name())
-                .status(user.getStatus().name())
-                .build();
+        return userMapper.toUserResponse(user);
     }
 }

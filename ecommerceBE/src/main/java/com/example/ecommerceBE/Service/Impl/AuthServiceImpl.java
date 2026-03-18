@@ -9,6 +9,7 @@ import com.example.ecommerceBE.Service.AuthService;
 import com.example.ecommerceBE.Service.EmailService;
 import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.entity.enums.Status;
+import com.example.ecommerceBE.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,12 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final UserMapper userMapper;
+    private final LoginMapper loginMapper;
+    private final RegisterMapper registerMapper;
+    private final ForgotPasswordMapper forgotPasswordMapper;
+    private final ResetPasswordMapper resetPasswordMapper;
+    private final ChangePasswordMapper changePasswordMapper;
 
     @Override
     public RegisterResponse register(RegisterRequest request) {
@@ -48,13 +55,7 @@ public class AuthServiceImpl implements AuthService {
         String fullName = request.getFirstName() + " " + request.getLastName();
         emailService.sendVerifyEmail(user.getEmail(), fullName,verifyToken);
 
-        return RegisterResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .message("Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.")
-                .build();
+        return registerMapper.toRegisterResponse(user);
     }
 
     @Override
@@ -90,15 +91,7 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
-        return LoginResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .role(user.getRole().name())
-                .build();
+        return loginMapper.toLoginResponse(user, token);
     }
 
     @Override
@@ -114,9 +107,7 @@ public class AuthServiceImpl implements AuthService {
         String fullName = user.getFirstName() + " " + user.getLastName();
         emailService.sendResetPasswordEmail(user.getEmail(), fullName, resetToken);
 
-        return ForgotPasswordResponse.builder()
-                .message("Email đặt lại mật khẩu đã được gửi!")
-                .build();
+        return forgotPasswordMapper.toForgotPasswordResponse();
     }
 
     @Override
@@ -133,9 +124,7 @@ public class AuthServiceImpl implements AuthService {
         user.setResetTokenExpiry(null);
         userRepository.save(user);
 
-        return ResetPasswordResponse.builder()
-                .message("Đặt lại mật khẩu thành công!")
-                .build();
+        return resetPasswordMapper.toResetPasswordResponse();
     }
 
     @Override
@@ -157,9 +146,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
-        return ChangePasswordResponse.builder()
-                .message("Đổi mật khẩu thành công!")
-                .build();
+        return changePasswordMapper.toChangePasswordResponse();
     }
 
     @Override
@@ -170,13 +157,6 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
-        return UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .role(user.getRole().name())
-                .status(user.getStatus().name())
-                .build();
+        return userMapper.toUserResponse(user);
     }
 }
