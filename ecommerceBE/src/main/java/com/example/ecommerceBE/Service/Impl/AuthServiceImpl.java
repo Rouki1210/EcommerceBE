@@ -80,6 +80,10 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
 
+        if (user.getRole() == Role.ADMIN) {
+            throw new RuntimeException("Vui lòng đăng nhập tại trang quản trị");
+        }
+
         if (user.getStatus() == Status.INACTIVE) {
             throw new RuntimeException("Tài khoản chưa được xác thực email");
         }

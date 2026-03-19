@@ -8,6 +8,7 @@ import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Role;
 import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.AdminService;
+import com.example.ecommerceBE.mapper.LoginMapper;
 import com.example.ecommerceBE.mapper.UserMapper;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ public class AdminServiceImpl implements AdminService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final UserMapper userMapper;
+    private final LoginMapper loginMapper;
 
     @Override
     public List<UserResponse> getAllUsers() {
@@ -46,7 +48,7 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Tài khoản không có quyền truy cập");
+            throw new RuntimeException("Tài khoản không có quyền truy cập vào trang quản trị");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -55,15 +57,7 @@ public class AdminServiceImpl implements AdminService {
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
-        return LoginResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .role(user.getRole().name())
-                .build();
+        return loginMapper.toLoginResponse(user, token);
     }
 
     @Override

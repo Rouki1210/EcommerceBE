@@ -72,8 +72,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 // 2. Gắn AuthenticationProvider mới vào đây
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .authenticationProvider(authenticationProvider());
 
 
         return http.build();
@@ -92,7 +91,7 @@ public class SecurityConfig {
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())
                     .password(user.getPassword())
-                    .authorities(String.valueOf(user.getRole())) // Lấy quyền từ DB (ADMIN hoặc USER)
+                    .authorities("ROLE_" + user.getRole().name()) // Lấy quyền từ DB (ADMIN hoặc USER)
                     .build();
         };
     }
