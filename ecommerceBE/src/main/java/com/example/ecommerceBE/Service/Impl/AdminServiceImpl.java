@@ -7,7 +7,7 @@ import com.example.ecommerceBE.Dtos.Auth.UserResponse;
 import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Role;
 import com.example.ecommerceBE.Repository.UserRepository;
-import com.example.ecommerceBE.Service.AdminService;
+import com.example.ecommerceBE.Service.Interface.AdminService;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

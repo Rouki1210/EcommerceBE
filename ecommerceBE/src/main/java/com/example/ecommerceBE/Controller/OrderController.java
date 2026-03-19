@@ -2,7 +2,7 @@ package com.example.ecommerceBE.Controller;
 
 import com.example.ecommerceBE.Dtos.CreateOrderRequest;
 import com.example.ecommerceBE.Dtos.OrderResponse;
-import com.example.ecommerceBE.Service.OrderService;
+import com.example.ecommerceBE.Service.Interface.OrderService;
 import com.example.ecommerceBE.entity.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<Order> getAllOrders() {
+    public List<OrderResponse> getAllOrders() {
         return orderService.getAllOrders();
     }
 

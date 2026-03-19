@@ -1,7 +1,7 @@
 package com.example.ecommerceBE.Controller;
 
-import com.example.ecommerceBE.Service.OrderService;
-import com.example.ecommerceBE.Service.PaymentService;
+import com.example.ecommerceBE.Service.Interface.OrderService;
+import com.example.ecommerceBE.Service.Interface.PaymentService;
 import com.example.ecommerceBE.entity.Order;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

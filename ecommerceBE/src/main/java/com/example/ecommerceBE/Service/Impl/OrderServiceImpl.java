@@ -6,7 +6,7 @@ import com.example.ecommerceBE.Dtos.OrderResponse;
 import com.example.ecommerceBE.Repository.OrderRepository;
 import com.example.ecommerceBE.Repository.ProductRepository;
 import com.example.ecommerceBE.Repository.UserRepository;
-import com.example.ecommerceBE.Service.OrderService;
+import com.example.ecommerceBE.Service.Interface.OrderService;
 import com.example.ecommerceBE.entity.Order;
 import com.example.ecommerceBE.entity.OrderItem;
 import com.example.ecommerceBE.entity.Product;
@@ -14,7 +14,6 @@ import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.OrderStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.id.GUIDGenerator;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -81,8 +80,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAll()
+                .stream()
+                .map(this::mapToResponse) // Gọi hàm cắt tỉa JSON đã viết sẵn trong Service
+                .toList();
     }
 
     @Override

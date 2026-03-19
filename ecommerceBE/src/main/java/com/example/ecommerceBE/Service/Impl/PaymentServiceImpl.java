@@ -1,7 +1,7 @@
 package com.example.ecommerceBE.Service.Impl;
 
 import com.example.ecommerceBE.Config.VnpayUntil;
-import com.example.ecommerceBE.Service.PaymentService;
+import com.example.ecommerceBE.Service.Interface.PaymentService;
 import com.example.ecommerceBE.entity.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.example.ecommerceBE.Service;
+package com.example.ecommerceBE.Service.Interface;
 
 import com.example.ecommerceBE.Dtos.CreateOrderRequest;
 import com.example.ecommerceBE.Dtos.OrderResponse;
@@ -9,7 +9,7 @@ import java.util.List;
 public interface OrderService{
     Order createOrder(CreateOrderRequest request);
     Order getOrderById(String orderId);
-    List<Order> getAllOrders();
+    List<OrderResponse> getAllOrders();
     void  markPair(String orderId);
     OrderResponse mapToResponse(Order order);
 }

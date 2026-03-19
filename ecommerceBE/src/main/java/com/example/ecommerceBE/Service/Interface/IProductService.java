@@ -1,4 +1,4 @@
-package com.example.ecommerceBE.Service;
+package com.example.ecommerceBE.Service.Interface;
 
 import java.util.List;
 import com.example.ecommerceBE.Dtos.ProductRequest;
