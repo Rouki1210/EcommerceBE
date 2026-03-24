@@ -13,7 +13,7 @@ public class CloudinaryConfig {
     @Value("${cloudinary.cloud-name}")
     private String cloudName;
 
-    @Value("${cloudinary.api-key}")
+    @Value("254145199363621")
     private String apiKey;
 
     @Value("${cloudinary.api-secret}")
