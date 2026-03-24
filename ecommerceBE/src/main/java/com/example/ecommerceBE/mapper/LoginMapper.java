@@ -10,6 +10,7 @@ public class LoginMapper {
         return LoginResponse.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .Role(user.getRole().name())
                 .accessToken(token)
                 .refreshToken(refreshToken)
                 .build();

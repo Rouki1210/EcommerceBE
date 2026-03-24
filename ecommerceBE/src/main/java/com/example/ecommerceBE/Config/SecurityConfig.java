@@ -55,16 +55,18 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/admin/auth/login").permitAll()
 
                         // GET: Cho phép tất cả mọi người xem sản phẩm
                         .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
 
                         // POST/PUT/DELETE: Chỉ ADMIN mới được phép
-                        .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+
 
                         .anyRequest().authenticated()
                 )
