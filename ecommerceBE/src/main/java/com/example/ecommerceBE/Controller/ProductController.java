@@ -1,8 +1,9 @@
 package com.example.ecommerceBE.Controller;
 
 import com.example.ecommerceBE.Dtos.ProductRequest;
+import com.example.ecommerceBE.Dtos.ProductResponsive;
 import com.example.ecommerceBE.Dtos.ProductSaleRequest;
-import com.example.ecommerceBE.Service.IProductService;
+import com.example.ecommerceBE.Service.Interface.IProductService;
 import com.example.ecommerceBE.entity.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,8 +27,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public List<ProductResponsive> getAllProducts() {
+        return productService.getAllProducts();
     }
 
     @GetMapping("/{id}")

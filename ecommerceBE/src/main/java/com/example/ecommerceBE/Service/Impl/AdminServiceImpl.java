@@ -8,8 +8,6 @@ import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Role;
 import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.AdminService;
-import com.example.ecommerceBE.mapper.LoginMapper;
-import com.example.ecommerceBE.mapper.UserMapper;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,14 +21,12 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final UserMapper userMapper;
-    private final LoginMapper loginMapper;
 
     @Override
     public List<UserResponse> getAllUsers() {
         return userRepository.findByRole(Role.USER)
                 .stream()
-                .map(userMapper::toUserResponse)
+                .map(this::mapToUserResponse)
                 .collect(Collectors.toList());
     }
 
@@ -38,7 +34,7 @@ public class AdminServiceImpl implements AdminService {
     public List<UserResponse> getAllAdmins() {
         return userRepository.findByRole(Role.ADMIN)
                 .stream()
-                .map(userMapper::toUserResponse)
+                .map(this::mapToUserResponse)
                 .collect(Collectors.toList());
     }
 
@@ -48,26 +44,31 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Tài khoản không có quyền truy cập vào trang quản trị");
+            throw new RuntimeException("Tài khoản không có quyền truy cập");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Email hoặc mật khẩu không đúng");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
-        user.setRefreshToken(refreshToken);
-        userRepository.save(user);
-        return loginMapper.toLoginResponse(user, token, refreshToken);
+        return LoginResponse.builder()
+                .accessToken(token)
+                .tokenType("Bearer")
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole().name())
+                .build();
     }
 
     @Override
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
-        return userMapper.toUserResponse(user);
+        return mapToUserResponse(user);
     }
 
     @Override
@@ -90,6 +91,17 @@ public class AdminServiceImpl implements AdminService {
         }
 
         userRepository.save(user);
-        return userMapper.toUserResponse(user);
+        return mapToUserResponse(user);
+    }
+
+    private UserResponse mapToUserResponse(User user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole().name())
+                .status(user.getStatus().name())
+                .build();
     }
 }

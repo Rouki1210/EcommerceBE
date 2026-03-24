@@ -1,12 +1,13 @@
-package com.example.ecommerceBE.Service;
+package com.example.ecommerceBE.Service.Interface;
 
 import java.util.List;
 import com.example.ecommerceBE.Dtos.ProductRequest;
+import com.example.ecommerceBE.Dtos.ProductResponsive;
 import com.example.ecommerceBE.Dtos.ProductSaleRequest;
 import com.example.ecommerceBE.entity.Product;
 
 public interface IProductService {
-    List<Product> getAllProducts();
+    List<ProductResponsive> getAllProducts();
     Product getProductById(String id);
     Product createProduct(ProductRequest productRequest);
     Product updateProduct(String id, ProductRequest productRequest);

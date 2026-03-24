@@ -1,7 +1,7 @@
 package com.example.ecommerceBE.Controller;
 
 import com.example.ecommerceBE.Dtos.Auth.*;
-import com.example.ecommerceBE.Service.AuthService;
+import com.example.ecommerceBE.Service.Interface.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -61,5 +61,9 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(@RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(authService.getMe(authHeader));
+    }
+    @PostMapping("/admin/login")
+    public ResponseEntity<LoginResponse> adminLogin(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.adminLogin(request));
     }
 }
