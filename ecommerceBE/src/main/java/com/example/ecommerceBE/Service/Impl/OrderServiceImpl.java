@@ -8,6 +8,7 @@ import com.example.ecommerceBE.Repository.OrderRepository;
 import com.example.ecommerceBE.Repository.ProductRepository;
 import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.Interface.OrderService;
+import com.example.ecommerceBE.Util.PriceUtil;
 import com.example.ecommerceBE.entity.*;
 import com.example.ecommerceBE.entity.enums.OrderStatus;
 import jakarta.transaction.Transactional;
@@ -58,12 +59,12 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setProduct(product);
             orderItem.setQuantity(item.getQuantity());
             orderItem.setOrder(order);
-            orderItem.setPrice(product.getPrice());
+            BigDecimal currentRealPrice = PriceUtil.getActivePrice(product);
+            orderItem.setPrice(currentRealPrice);
 
             orderItems.add(orderItem);
 
-            BigDecimal itemTotal = product.getPrice()
-                    .multiply(BigDecimal.valueOf(item.getQuantity()));
+            BigDecimal itemTotal = currentRealPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
 
             total = total.add(itemTotal);
         }
@@ -87,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
             if (coupon.getDiscountAmount() != null) {
                 discount = coupon.getDiscountAmount();
             }
-            else if (coupon.getDiscountAmount() != null) {
+            else if (coupon.getDiscountPercentage() != null) {
                 BigDecimal percentage = new BigDecimal(coupon.getDiscountPercentage());
                 discount = total.multiply(percentage).divide(new BigDecimal(100));
 

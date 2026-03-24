@@ -1,4 +1,4 @@
-package com.example.ecommerceBE.Config;
+package com.example.ecommerceBE.Util;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -6,7 +6,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class VnpayUntil {
+public class VnpayUtil {
 
     public static String hmacSHA512(String key, String data) throws Exception {
 

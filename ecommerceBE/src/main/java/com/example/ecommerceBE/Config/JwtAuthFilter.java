@@ -1,6 +1,6 @@
 package com.example.ecommerceBE.Config;
 
-import com.example.ecommerceBE.Config.JwtUtil;
+import com.example.ecommerceBE.Util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

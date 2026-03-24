@@ -1,4 +1,4 @@
-package com.example.ecommerceBE.Config;
+package com.example.ecommerceBE.Util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

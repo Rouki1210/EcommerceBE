@@ -1,6 +1,6 @@
 package com.example.ecommerceBE.Service.Impl;
 
-import com.example.ecommerceBE.Config.VnpayUntil;
+import com.example.ecommerceBE.Util.VnpayUtil;
 import com.example.ecommerceBE.Service.Interface.PaymentService;
 import com.example.ecommerceBE.entity.Order;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +44,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         params.put("vnp_OrderType", "other");
 
-        String query = VnpayUntil.buildQuery(params);
-        String secureHash = VnpayUntil.hmacSHA512(secreKey, query);
+        String query = VnpayUtil.buildQuery(params);
+        String secureHash = VnpayUtil.hmacSHA512(secreKey, query);
 
         query += "&vnp_SecureHash" + secureHash;
 

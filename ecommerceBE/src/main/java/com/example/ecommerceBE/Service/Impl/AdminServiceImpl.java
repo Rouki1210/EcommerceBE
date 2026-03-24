@@ -1,6 +1,6 @@
 package com.example.ecommerceBE.Service.Impl;
 
-import com.example.ecommerceBE.Config.JwtUtil;
+import com.example.ecommerceBE.Util.JwtUtil;
 import com.example.ecommerceBE.Dtos.Auth.LoginRequest;
 import com.example.ecommerceBE.Dtos.Auth.LoginResponse;
 import com.example.ecommerceBE.Dtos.Auth.UserResponse;

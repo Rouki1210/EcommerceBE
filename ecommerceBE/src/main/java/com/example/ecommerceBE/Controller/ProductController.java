@@ -1,7 +1,7 @@
 package com.example.ecommerceBE.Controller;
 
 import com.example.ecommerceBE.Dtos.ProductRequest;
-import com.example.ecommerceBE.Dtos.ProductResponsive;
+import com.example.ecommerceBE.Dtos.ProductResponse;
 import com.example.ecommerceBE.Dtos.ProductSaleRequest;
 import com.example.ecommerceBE.Service.Interface.IProductService;
 import com.example.ecommerceBE.entity.Product;
@@ -27,7 +27,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductResponsive> getAllProducts() {
+    public List<ProductResponse> getAllProducts() {
         return productService.getAllProducts();
     }
 

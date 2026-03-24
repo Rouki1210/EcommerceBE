@@ -3,7 +3,7 @@ package com.example.ecommerceBE.Dtos;
 import lombok.Data;
 
 @Data
-public class ProductResponsive {
+public class ProductResponse {
     private String id;
     private String name;
     private String description;

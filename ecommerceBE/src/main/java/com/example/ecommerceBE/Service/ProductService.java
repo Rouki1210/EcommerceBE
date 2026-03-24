@@ -3,7 +3,7 @@ package com.example.ecommerceBE.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.example.ecommerceBE.Dtos.ProductResponsive;
+import com.example.ecommerceBE.Dtos.ProductResponse;
 import com.example.ecommerceBE.Dtos.ProductSaleRequest;
 import com.example.ecommerceBE.Service.Interface.IProductService;
 import com.example.ecommerceBE.entity.enums.Badge;
@@ -26,7 +26,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<ProductResponsive> getAllProducts() {
+    public List<ProductResponse> getAllProducts() {
         List<Product> products = productRepository.findAll();
         return  products.stream().map(ProductMapper ::mapToResponse)
                 .toList();

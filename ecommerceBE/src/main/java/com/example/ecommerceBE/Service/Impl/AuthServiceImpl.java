@@ -7,7 +7,7 @@ import com.example.ecommerceBE.entity.enums.Role;
 import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.Interface.AuthService;
 import com.example.ecommerceBE.Service.EmailService;
-import com.example.ecommerceBE.Config.JwtUtil;
+import com.example.ecommerceBE.Util.JwtUtil;
 import com.example.ecommerceBE.entity.enums.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

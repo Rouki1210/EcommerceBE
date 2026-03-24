@@ -37,6 +37,9 @@ public class Product {
     @Column(precision = 10, scale = 2)
     private BigDecimal originalPrice;
 
+    private LocalDateTime saleStartDate;
+    private LocalDateTime saleEndDate;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
