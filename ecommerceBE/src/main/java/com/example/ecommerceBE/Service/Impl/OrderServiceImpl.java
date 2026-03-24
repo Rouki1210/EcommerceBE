@@ -3,20 +3,19 @@ package com.example.ecommerceBE.Service.Impl;
 import com.example.ecommerceBE.Dtos.CreateOrderRequest;
 import com.example.ecommerceBE.Dtos.OrderItemRequest;
 import com.example.ecommerceBE.Dtos.OrderResponse;
+import com.example.ecommerceBE.Repository.CouponRepository;
 import com.example.ecommerceBE.Repository.OrderRepository;
 import com.example.ecommerceBE.Repository.ProductRepository;
 import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.Interface.OrderService;
-import com.example.ecommerceBE.entity.Order;
-import com.example.ecommerceBE.entity.OrderItem;
-import com.example.ecommerceBE.entity.Product;
-import com.example.ecommerceBE.entity.User;
+import com.example.ecommerceBE.entity.*;
 import com.example.ecommerceBE.entity.enums.OrderStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +25,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final CouponRepository couponRepository;
 
 
     @Override
@@ -67,12 +67,50 @@ public class OrderServiceImpl implements OrderService {
 
             total = total.add(itemTotal);
         }
-
         order.setOrderItems(orderItems);
+
+        if (request.getCouponCode() !=null && !request.getCouponCode().trim().isEmpty()) {
+            Coupon coupon = couponRepository.findByCode(request.getCouponCode())
+                    .orElseThrow(() -> new RuntimeException("coupon not found"));
+
+            if (!coupon.getIsActive() ||
+                coupon.getStartDate().isAfter(LocalDateTime.now()) ||
+                coupon.getEndDate().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("coupon code not found or expired");
+            }
+
+            if (coupon.getMinPurchaseAmount() != null && total.compareTo(coupon.getMinPurchaseAmount()) < 0) {
+                throw new RuntimeException("coupon amount not enough");
+            }
+
+            BigDecimal discount = BigDecimal.ZERO;
+            if (coupon.getDiscountAmount() != null) {
+                discount = coupon.getDiscountAmount();
+            }
+            else if (coupon.getDiscountAmount() != null) {
+                BigDecimal percentage = new BigDecimal(coupon.getDiscountPercentage());
+                discount = total.multiply(percentage).divide(new BigDecimal(100));
+
+                if (coupon.getMaxDiscountAmount() != null && discount.compareTo(coupon.getMaxDiscountAmount()) > 0) {
+                    discount = coupon.getMaxDiscountAmount();
+                }
+            }
+            total = total.subtract(discount);
+            if (total.compareTo(BigDecimal.ZERO) < 0) {
+                total = BigDecimal.ZERO;
+            }
+            coupon.setUsedCount(coupon.getUsedCount() + 1);
+            if (coupon.getUsageLimit() != null && coupon.getUsedCount() >= coupon.getUsageLimit()) {
+                coupon.setIsActive(false); // Nếu đã dùng hết lượt thì tự động khóa mã lại
+            }
+            couponRepository.save(coupon);
+        }
+
         order.setTotalAmount(total);
 
         return orderRepository.save(order);
     }
+
 
     @Override
     public Order getOrderById(String orderId) {
