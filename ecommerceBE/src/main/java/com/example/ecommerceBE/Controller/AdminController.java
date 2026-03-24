@@ -3,7 +3,7 @@ package com.example.ecommerceBE.Controller;
 import com.example.ecommerceBE.Dtos.Auth.LoginRequest;
 import com.example.ecommerceBE.Dtos.Auth.LoginResponse;
 import com.example.ecommerceBE.Dtos.Auth.UserResponse;
-import com.example.ecommerceBE.Service.AdminService;
+import com.example.ecommerceBE.Service.Interface.AdminService;
 import jakarta.validation.Valid;
 import lombok.*;
 import org.springframework.http.ResponseEntity;

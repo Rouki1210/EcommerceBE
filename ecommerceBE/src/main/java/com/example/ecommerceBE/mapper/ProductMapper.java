@@ -8,7 +8,7 @@ public class ProductMapper {
     public static ProductResponsive mapToResponse(Product product) {
 
         ProductResponsive response = new ProductResponsive();
-
+        response.setId(product.getId());
         response.setName(product.getName());
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice().toString());

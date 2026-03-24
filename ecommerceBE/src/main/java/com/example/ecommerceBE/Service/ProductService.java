@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.ecommerceBE.Dtos.ProductResponsive;
 import com.example.ecommerceBE.Dtos.ProductSaleRequest;
+import com.example.ecommerceBE.Service.Interface.IProductService;
 import com.example.ecommerceBE.entity.enums.Badge;
 import com.example.ecommerceBE.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
