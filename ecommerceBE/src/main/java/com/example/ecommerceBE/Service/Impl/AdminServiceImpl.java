@@ -55,9 +55,12 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("Email hoặc mật khẩu không đúng");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
-        return loginMapper.toLoginResponse(user, token);
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+        return loginMapper.toLoginResponse(user, token, refreshToken);
     }
 
     @Override

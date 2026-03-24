@@ -31,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final ForgotPasswordMapper forgotPasswordMapper;
     private final ResetPasswordMapper resetPasswordMapper;
     private final ChangePasswordMapper changePasswordMapper;
+    private final RefreshTokenMapper refreshTokenMapper;
 
     @Override
     public RegisterResponse register(RegisterRequest request) {
@@ -93,9 +94,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName() );
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
-        return loginMapper.toLoginResponse(user, token);
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+        return loginMapper.toLoginResponse(user, token, refreshToken);
     }
 
     @Override
@@ -160,6 +164,41 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        return userMapper.toUserResponse(user);
+    }
+
+    @Override
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        if (!jwtUtil.isTokenValid(refreshToken)) {
+            throw new RuntimeException("Refresh token không hợp lệ hoặc đã hết hạn");
+        }
+
+        User user = userRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("Refresh token không tồn tại"));
+
+        String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
+        
+        user.setRefreshToken(newRefreshToken);
+        userRepository.save(user);
+
+        return refreshTokenMapper.toRefreshTokenResponse(newAccessToken, newRefreshToken);
+    }
+
+    @Override
+    public UserResponse updateProfile(String authHeader, UpdateProfileRequest request) {
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        userRepository.save(user);
 
         return userMapper.toUserResponse(user);
     }

@@ -6,15 +6,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LoginMapper {
-    public LoginResponse toLoginResponse (User user, String token ){
+    public LoginResponse toLoginResponse (User user, String token, String refreshToken){
         return LoginResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .id(user.getId())
-                .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .role(user.getRole().name())
+                .accessToken(token)
+                .refreshToken(refreshToken)
                 .build();
     }
 }

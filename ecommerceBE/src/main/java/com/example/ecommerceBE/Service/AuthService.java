@@ -10,4 +10,5 @@ public interface AuthService {
     ResetPasswordResponse resetPassword(ResetPasswordRequest request);
     ChangePasswordResponse changePassword(String authHeader, ChangePasswordRequest request);
     UserResponse getMe(String authHeader);
-}
+    RefreshTokenResponse refreshToken(RefreshTokenRequest request);
+    UserResponse updateProfile(String authHeader, UpdateProfileRequest request);}

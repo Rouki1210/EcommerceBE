@@ -1,5 +1,5 @@
-package com.example.ecommerceBE.Config;
-
+//package com.example.ecommerceBE.Config;
+//
 //import javax.crypto.Mac;
 //import javax.crypto.spec.SecretKeySpec;
 //import java.net.URLEncoder;

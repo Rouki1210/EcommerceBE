@@ -47,6 +47,7 @@ public class User {
     @Builder.Default
     private Role role = Role.USER;
 
+    @Column(name = "refresh_token", length = 500)
     private String refreshToken;
 
     // Relations
