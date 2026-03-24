@@ -50,24 +50,26 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/admin/auth/login").permitAll()
 
                         // GET: Cho phép tất cả mọi người xem sản phẩm
                         .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
 
                         // POST/PUT/DELETE: Chỉ ADMIN mới được phép
-                        .requestMatchers(HttpMethod.POST, "/api/products").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
 
-                        .anyRequest().permitAll()
+
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 // 2. Gắn AuthenticationProvider mới vào đây
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .authenticationProvider(authenticationProvider());
 
 
         return http.build();
@@ -86,7 +88,7 @@ public class SecurityConfig {
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())
                     .password(user.getPassword())
-                    .authorities(String.valueOf(user.getRole())) // Lấy quyền từ DB (ADMIN hoặc USER)
+                    .authorities(user.getRole().name()) // Lấy quyền từ DB (ADMIN hoặc USER)
                     .build();
         };
     }
@@ -107,18 +109,18 @@ public class SecurityConfig {
 
 
     // CorsConfig
-    @Bean
-    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+    //@Bean
+    //public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+    //    org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
 
-        configuration.setAllowedOrigins(java.util.List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type", "Accept"));
-        configuration.setAllowCredentials(true);
+    //    configuration.setAllowedOrigins(java.util.List.of("http://localhost:5173"));
+    //    configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+    //    configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type", "Accept"));
+    //    configuration.setAllowCredentials(true);
 
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+    //    org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+    //    source.registerCorsConfiguration("/**", configuration);
 
-        return source;
-    }
+    //    return source;
+    //}
 }

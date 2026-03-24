@@ -29,6 +29,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request));
+    }
+
     @PostMapping("/forgot-password")
     public ResponseEntity<ForgotPasswordResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         return ResponseEntity.ok(authService.forgotPassword(request));
@@ -44,6 +49,13 @@ public class AuthController {
             @Valid @RequestBody ChangePasswordRequest request,
             @RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(authService.changePassword(authHeader, request));
+    }
+
+    @PutMapping("/update-profile")
+    public ResponseEntity<UserResponse> updateProfile(
+            @Valid @RequestBody UpdateProfileRequest request,
+            @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(authService.updateProfile(authHeader, request));
     }
 
     @GetMapping("/me")

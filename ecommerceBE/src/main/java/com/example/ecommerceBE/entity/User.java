@@ -14,7 +14,8 @@ import java.util.List;
 @Table(name = "users", indexes = {
         @Index(columnList = "email")
 })
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -30,8 +31,10 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String firstName;
 
+    @Column(nullable = false)
     private String lastName;
 
     @Enumerated(EnumType.STRING)
@@ -41,18 +44,20 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Role role = Role.USER;
 
+    @Column(name = "refresh_token", length = 500)
     private String refreshToken;
 
     // Relations
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cart> carts;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments;
 
     @Enumerated(EnumType.STRING)

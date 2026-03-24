@@ -22,12 +22,28 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String role, String id, String firstName, String lastName) {
         return Jwts.builder()
                 .setSubject(email)
+                .claim("id", id)
+                .claim("firstName", firstName)
+                .claim("lastName", lastName)
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getKey())
+                .compact();
+    }
+
+    @Value("${app.jwt.refresh-expiration}")
+    private long refreshExpiration;
+
+    public String generateRefreshToken(String email, String id) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("id", id)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(getKey())
                 .compact();
     }

@@ -9,6 +9,7 @@ import com.example.ecommerceBE.Service.Interface.AuthService;
 import com.example.ecommerceBE.Service.EmailService;
 import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.entity.enums.Status;
+import com.example.ecommerceBE.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,13 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final UserMapper userMapper;
+    private final LoginMapper loginMapper;
+    private final RegisterMapper registerMapper;
+    private final ForgotPasswordMapper forgotPasswordMapper;
+    private final ResetPasswordMapper resetPasswordMapper;
+    private final ChangePasswordMapper changePasswordMapper;
+    private final RefreshTokenMapper refreshTokenMapper;
 
     @Override
     public RegisterResponse register(RegisterRequest request) {
@@ -48,13 +56,7 @@ public class AuthServiceImpl implements AuthService {
         String fullName = request.getFirstName() + " " + request.getLastName();
         emailService.sendVerifyEmail(user.getEmail(), fullName,verifyToken);
 
-        return RegisterResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .message("Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.")
-                .build();
+        return registerMapper.toRegisterResponse(user);
     }
 
     @Override
@@ -79,6 +81,10 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
 
+        if (user.getRole() == Role.ADMIN) {
+            throw new RuntimeException("Vui lòng đăng nhập tại trang quản trị");
+        }
+
         if (user.getStatus() == Status.INACTIVE) {
             throw new RuntimeException("Tài khoản chưa được xác thực email");
         }
@@ -88,17 +94,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName() );
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
-        return LoginResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .role(user.getRole().name())
-                .build();
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+        return loginMapper.toLoginResponse(user, token, refreshToken);
     }
 
     @Override
@@ -114,9 +115,7 @@ public class AuthServiceImpl implements AuthService {
         String fullName = user.getFirstName() + " " + user.getLastName();
         emailService.sendResetPasswordEmail(user.getEmail(), fullName, resetToken);
 
-        return ForgotPasswordResponse.builder()
-                .message("Email đặt lại mật khẩu đã được gửi!")
-                .build();
+        return forgotPasswordMapper.toForgotPasswordResponse();
     }
 
     @Override
@@ -133,9 +132,7 @@ public class AuthServiceImpl implements AuthService {
         user.setResetTokenExpiry(null);
         userRepository.save(user);
 
-        return ResetPasswordResponse.builder()
-                .message("Đặt lại mật khẩu thành công!")
-                .build();
+        return resetPasswordMapper.toResetPasswordResponse();
     }
 
     @Override
@@ -157,9 +154,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
-        return ChangePasswordResponse.builder()
-                .message("Đổi mật khẩu thành công!")
-                .build();
+        return changePasswordMapper.toChangePasswordResponse();
     }
 
     @Override
@@ -170,14 +165,42 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
-        return UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .role(user.getRole().name())
-                .status(user.getStatus().name())
-                .build();
+        return userMapper.toUserResponse(user);
+    }
+
+    @Override
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        if (!jwtUtil.isTokenValid(refreshToken)) {
+            throw new RuntimeException("Refresh token không hợp lệ hoặc đã hết hạn");
+        }
+
+        User user = userRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("Refresh token không tồn tại"));
+
+        String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
+        
+        user.setRefreshToken(newRefreshToken);
+        userRepository.save(user);
+
+        return refreshTokenMapper.toRefreshTokenResponse(newAccessToken, newRefreshToken);
+    }
+
+    @Override
+    public UserResponse updateProfile(String authHeader, UpdateProfileRequest request) {
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        userRepository.save(user);
+
+        return userMapper.toUserResponse(user);
     }
     @Override
     public LoginResponse adminLogin(LoginRequest request) {
