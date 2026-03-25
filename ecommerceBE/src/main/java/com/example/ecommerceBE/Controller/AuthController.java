@@ -62,6 +62,7 @@ public class AuthController {
     public ResponseEntity<UserResponse> getMe(@RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(authService.getMe(authHeader));
     }
+
     @PostMapping("/admin/login")
     public ResponseEntity<LoginResponse> adminLogin(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.adminLogin(request));

@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
         String fullName = request.getFirstName() + " " + request.getLastName();
-        emailService.sendVerifyEmail(user.getEmail(), fullName,verifyToken);
+        emailService.sendVerifyEmail(user.getEmail(), fullName, verifyToken);
 
         return registerMapper.toRegisterResponse(user);
     }
@@ -94,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName() );
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
         user.setRefreshToken(refreshToken);
@@ -181,7 +181,7 @@ public class AuthServiceImpl implements AuthService {
 
         String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
         String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
-        
+
         user.setRefreshToken(newRefreshToken);
         userRepository.save(user);
 
@@ -202,34 +202,24 @@ public class AuthServiceImpl implements AuthService {
 
         return userMapper.toUserResponse(user);
     }
-    @Override
-    public LoginResponse adminLogin(LoginRequest request) {
+
+    @Override    public LoginResponse adminLogin(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
 
-        if (user.getStatus() == Status.INACTIVE) {
-            throw new RuntimeException("Tài khoản chưa được xác thực email");
-        }
-
-
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Truy cập bị từ chối: Tài khoản của bạn không có quyền Quản trị viên!");
+            throw new RuntimeException("Tài khoản không có quyền truy cập vào trang quản trị");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Email hoặc mật khẩu không đúng");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
-        return LoginResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .role(user.getRole().name())
-                .build();
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+        return loginMapper.toLoginResponse(user, token, refreshToken);
     }
 }
