@@ -54,6 +54,7 @@ public class AuthServiceImpl implements AuthService {
                 .provider(Provider.LOCAL)
                 .verifyToken(verifyToken)
                 .verifyTokenExpiry(LocalDateTime.now().plusHours(24))
+                .status(devMode ? Status.ACTIVE : Status.INACTIVE)
                 .build();
 
         userRepository.save(user);
