@@ -19,7 +19,7 @@ public class PaymentServiceImpl implements PaymentService {
     private String tmnCode;
 
     @Value("${vnpay.secretKey}")
-    private String secreKey;
+    private String secretKey;
 
     @Value("${vnpay.url}")
     private String vnPayUrl;
@@ -45,7 +45,7 @@ public class PaymentServiceImpl implements PaymentService {
         params.put("vnp_OrderType", "other");
 
         String query = VnpayUtil.buildQuery(params);
-        String secureHash = VnpayUtil.hmacSHA512(secreKey, query);
+        String secureHash = VnpayUtil.hmacSHA512(secretKey, query);
 
         query += "&vnp_SecureHash" + secureHash;
 
