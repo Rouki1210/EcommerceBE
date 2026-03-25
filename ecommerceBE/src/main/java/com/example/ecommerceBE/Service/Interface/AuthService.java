@@ -1,4 +1,4 @@
-package com.example.ecommerceBE.Service;
+package com.example.ecommerceBE.Service.Interface;
 
 import com.example.ecommerceBE.Dtos.Auth.*;
 
@@ -11,4 +11,6 @@ public interface AuthService {
     ChangePasswordResponse changePassword(String authHeader, ChangePasswordRequest request);
     UserResponse getMe(String authHeader);
     RefreshTokenResponse refreshToken(RefreshTokenRequest request);
-    UserResponse updateProfile(String authHeader, UpdateProfileRequest request);}
+    UserResponse updateProfile(String authHeader, UpdateProfileRequest request);
+    LoginResponse adminLogin(LoginRequest request);
+}

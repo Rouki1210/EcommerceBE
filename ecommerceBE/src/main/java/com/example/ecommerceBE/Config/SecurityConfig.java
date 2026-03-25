@@ -18,6 +18,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -48,9 +53,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/admin/login").permitAll()
 
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/admin/auth/login").permitAll()
 
                         // GET: Cho phép tất cả mọi người xem sản phẩm
                         .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
@@ -75,7 +80,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 3. Ép Spring Security tìm User bằng cách gọi xuống Database
+    // 3. Ép Spring Security tìm User bằng cách gọi xuống Database/
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -103,24 +108,20 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
-    // CorsConfig
-    //@Bean
-    //public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-    //    org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-
-    //    configuration.setAllowedOrigins(java.util.List.of("http://localhost:5173"));
-    //    configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-    //    configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type", "Accept"));
-    //    configuration.setAllowCredentials(true);
-
-    //    org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
-    //    source.registerCorsConfiguration("/**", configuration);
-
-    //    return source;
-    //}
 }
