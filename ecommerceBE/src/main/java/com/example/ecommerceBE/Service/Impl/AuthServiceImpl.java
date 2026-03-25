@@ -11,6 +11,7 @@ import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.entity.enums.Status;
 import com.example.ecommerceBE.mapper.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,9 @@ public class AuthServiceImpl implements AuthService {
     private final ChangePasswordMapper changePasswordMapper;
     private final RefreshTokenMapper refreshTokenMapper;
 
+    @Value("${app.dev-mode:false}")
+    private boolean devMode;
+
     @Override
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -53,8 +57,9 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
-        String fullName = request.getFirstName() + " " + request.getLastName();
-        emailService.sendVerifyEmail(user.getEmail(), fullName, verifyToken);
+        if (!devMode) {String fullName = request.getFirstName() + " " + request.getLastName();
+            emailService.sendVerifyEmail(user.getEmail(), fullName, verifyToken);}
+
 
         return registerMapper.toRegisterResponse(user);
     }
@@ -138,9 +143,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ChangePasswordResponse changePassword(String authHeader, ChangePasswordRequest request) {
         String token = authHeader.substring(7);
-        String userId = jwtUtil.extractEmail(token);
+        String email = jwtUtil.extractEmail(token);
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
