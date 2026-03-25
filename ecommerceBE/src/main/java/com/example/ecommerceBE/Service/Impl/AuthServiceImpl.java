@@ -138,9 +138,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ChangePasswordResponse changePassword(String authHeader, ChangePasswordRequest request) {
         String token = authHeader.substring(7);
-        String userId = jwtUtil.extractEmail(token);
+        String email = jwtUtil.extractEmail(token);
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
