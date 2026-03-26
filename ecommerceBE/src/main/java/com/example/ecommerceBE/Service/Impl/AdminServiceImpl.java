@@ -1,6 +1,7 @@
 package com.example.ecommerceBE.Service.Impl;
 
 import com.example.ecommerceBE.Dtos.Auth.UserResponse;
+import com.example.ecommerceBE.constant.MessageConstants;
 import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Role;
 import com.example.ecommerceBE.Repository.UserRepository;
@@ -39,27 +40,27 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_FOUND));
         return mapToUserResponse(user);
     }
 
     @Override
     public String deleteUser(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_FOUND));
         userRepository.delete(user);
-        return "Xóa user thành công!";
+        return MessageConstants.DELETE_USER_SUCCESS;
     }
 
     @Override
     public UserResponse updateRole(String id, String role) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_FOUND));
 
         try {
             user.setRole(Role.valueOf(role.toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Role không hợp lệ: " + role);
+            throw new RuntimeException(MessageConstants.INVALID_ROLE);
         }
 
         userRepository.save(user);

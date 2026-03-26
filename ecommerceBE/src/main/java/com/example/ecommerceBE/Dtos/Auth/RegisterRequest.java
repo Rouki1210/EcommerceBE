@@ -21,6 +21,6 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 8, max = 255, message = "Mật khẩu phải từ 8-255 ký tự")
+    @Size(min = 8, message = "Mật khẩu phải có ít nhất 8 kí tự")
     private String password;
 }
