@@ -1,6 +1,7 @@
 package com.example.ecommerceBE.Service.Impl;
 
 import com.example.ecommerceBE.Dtos.Auth.*;
+import com.example.ecommerceBE.constant.MessageConstants;
 import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Provider;
 import com.example.ecommerceBE.entity.enums.Role;
@@ -40,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email đã được sử dụng");
+            throw new RuntimeException(MessageConstants.EMAIL_ALREADY_EXISTS);
         }
 
         String verifyToken = UUID.randomUUID().toString();
@@ -68,10 +69,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String verifyEmail(String token) {
         User user = userRepository.findByVerifyToken(token)
-                .orElseThrow(() -> new RuntimeException("Token không hợp lệ"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.INVALID_TOKEN));
 
         if (user.getVerifyTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token đã hết hạn");
+            throw new RuntimeException(MessageConstants.TOKEN_EXPIRED);
         }
 
         user.setStatus(Status.ACTIVE);
@@ -79,24 +80,24 @@ public class AuthServiceImpl implements AuthService {
         user.setVerifyTokenExpiry(null);
         userRepository.save(user);
 
-        return "Xác thực email thành công!";
+        return MessageConstants.VERIFY_SUCCESS;
     }
 
     @Override
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.EMAIL_OR_PASSWORD_INCORRECT));
 
         if (user.getRole() == Role.ADMIN) {
-            throw new RuntimeException("Vui lòng đăng nhập tại trang quản trị");
+            throw new RuntimeException(MessageConstants.ADMIN_LOGIN_REQUIRED);
         }
 
         if (user.getStatus() == Status.INACTIVE) {
-            throw new RuntimeException("Tài khoản chưa được xác thực email");
+            throw new RuntimeException(MessageConstants.ACCOUNT_NOT_VERIFIED);
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Email hoặc mật khẩu không đúng");
+            throw new RuntimeException(MessageConstants.EMAIL_OR_PASSWORD_INCORRECT);
         }
 
 
@@ -111,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.ACCOUNT_NOT_FOUND));
 
         String resetToken = UUID.randomUUID().toString();
         user.setResetToken(resetToken);
@@ -127,10 +128,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResetPasswordResponse resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByResetToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Token không hợp lệ"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.INVALID_TOKEN));
 
         if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token đã hết hạn");
+            throw new RuntimeException(MessageConstants.TOKEN_EXPIRED);
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -147,14 +148,14 @@ public class AuthServiceImpl implements AuthService {
         String email = jwtUtil.extractEmail(token);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException("Mật khẩu hiện tại không đúng");
+            throw new RuntimeException(MessageConstants.CURRENT_PASSWORD_INCORRECT);
         }
 
         if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
-            throw new RuntimeException("Mật khẩu mới không được trùng mật khẩu cũ");
+            throw new RuntimeException(MessageConstants.NEW_PASSWORD_SAME_AS_OLD);
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -169,7 +170,7 @@ public class AuthServiceImpl implements AuthService {
         String email = jwtUtil.extractEmail(token);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_FOUND));
 
         return userMapper.toUserResponse(user);
     }
@@ -200,7 +201,7 @@ public class AuthServiceImpl implements AuthService {
         String email = jwtUtil.extractEmail(token);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_EXIST));
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -211,14 +212,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override    public LoginResponse adminLogin(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.EMAIL_OR_PASSWORD_INCORRECT));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Tài khoản không có quyền truy cập vào trang quản trị");
+            throw new RuntimeException(MessageConstants.ACCESS_DENIED);
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Email hoặc mật khẩu không đúng");
+            throw new RuntimeException(MessageConstants.EMAIL_OR_PASSWORD_INCORRECT);
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
