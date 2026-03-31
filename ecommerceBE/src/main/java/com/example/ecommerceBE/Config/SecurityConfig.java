@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 
 public class SecurityConfig {
 
@@ -57,14 +59,14 @@ public class SecurityConfig {
 
 
                         // GET: Cho phép tất cả mọi người xem sản phẩm
-                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
 
                         // POST/PUT/DELETE: Chỉ ADMIN mới được phép
-                        .requestMatchers(HttpMethod.POST, "/api/products").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+//                        .requestMatchers(HttpMethod.POST, "/api/products").hasAuthority("ADMIN")
+//                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyAuthority("ADMIN")
+//                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
+//                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
 
 
                         .anyRequest().authenticated()
