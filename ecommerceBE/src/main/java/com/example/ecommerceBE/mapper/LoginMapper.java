@@ -11,7 +11,7 @@ public class LoginMapper {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
-                .Role(user.getRole().name())
+                .role(user.getRole().name())
                 .accessToken(token)
                 .refreshToken(refreshToken)
                 .build();

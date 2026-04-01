@@ -1,6 +1,7 @@
 package com.example.ecommerceBE.Service.Interface;
 
 import com.example.ecommerceBE.Dtos.Auth.UserResponse;
+import com.example.ecommerceBE.Dtos.OrderResponse;
 
 import java.util.List;
 
@@ -10,4 +11,9 @@ public interface AdminService {
     String deleteUser(String id);
     UserResponse updateRole(String id, String role);
     List<UserResponse> getAllAdmins();
+
+    List<OrderResponse> getAllOrders();
+    OrderResponse getOrderById(String id);
+    OrderResponse updateOrderStatus(String id, String status);
+    void deleteOrder(String id);
 }

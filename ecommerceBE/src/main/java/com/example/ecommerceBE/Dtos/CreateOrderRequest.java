@@ -1,13 +1,13 @@
 package com.example.ecommerceBE.Dtos;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class CreateOrderRequest {
-    private String userId;
-    private List<OrderItemRequest> items;
-    private String couponCode;
+    @NotBlank(message = "địa chỉ giao hàng không được để trống")
     private String shippingAddress;
+    private String couponCode;
 }

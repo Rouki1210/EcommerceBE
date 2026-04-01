@@ -10,11 +10,14 @@ public enum ErrorCode {
     INVALID_CREDENTIALS     (401, "Email hoặc mật khẩu không đúng",     HttpStatus.UNAUTHORIZED),
     ACCOUNT_NOT_VERIFIED    (403, "Tài khoản chưa được xác thực email", HttpStatus.FORBIDDEN),
     ACCOUNT_LOCKED          (403, "Tài khoản đã bị khóa",              HttpStatus.FORBIDDEN),
-    INVALID_TOKEN           (400, "Token không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
+    INVALID_TOKEN           (400, "Token không hợp lệ", HttpStatus.BAD_REQUEST),
     TOKEN_EXPIRED           (400, "Token đã hết hạn",                    HttpStatus.BAD_REQUEST),
     UNAUTHORIZED            (401, "Bạn cần đăng nhập để thực hiện",     HttpStatus.UNAUTHORIZED),
     PASSWORD_NOT_MATCH  (400, "Mật khẩu xác nhận không khớp",           HttpStatus.BAD_REQUEST),
     PASSWORD_SAME_AS_OLD(400, "Mật khẩu mới không được trùng mật khẩu cũ", HttpStatus.BAD_REQUEST),
+    ACCESS_DENIED(403, "Tài khoản không có quyền truy cập vào trang quản trị", HttpStatus.FORBIDDEN),
+    ADMIN_LOGIN(403, "Vui lòng đăng nhập tại trang quản trị", HttpStatus.FORBIDDEN),
+    CURR_PASS_INCORRECT(401, "Mật khẩu hiện tại không đúng", HttpStatus.UNAUTHORIZED),
 
     // Product & Category
     PRODUCT_NOT_FOUND       (404, "Không tìm thấy sản phẩm",            HttpStatus.NOT_FOUND),
@@ -25,6 +28,7 @@ public enum ErrorCode {
     // Cart
     CART_ITEM_NOT_FOUND  (404, "Không tìm thấy sản phẩm trong giỏ hàng", HttpStatus.NOT_FOUND),
     INSUFFICIENT_STOCK   (400, "Sản phẩm không đủ tồn kho",              HttpStatus.BAD_REQUEST),
+    CART_NOT_FOUND(404, "Không tìm thấy giỏ hàng", HttpStatus.NOT_FOUND),
 
     // Wishlist
     WISHLIST_ITEM_NOT_FOUND (404, "Sản phẩm không có trong wishlist",    HttpStatus.NOT_FOUND),
@@ -40,6 +44,7 @@ public enum ErrorCode {
     COUPON_EXPIRED        (400, "Mã coupon đã hết hạn",                 HttpStatus.BAD_REQUEST),
     COUPON_USAGE_EXCEEDED (400, "Mã coupon đã hết lượt sử dụng",        HttpStatus.BAD_REQUEST),
     COUPON_MIN_ORDER_NOT_MET(400,"Đơn hàng chưa đạt giá trị tối thiểu để dùng coupon", HttpStatus.BAD_REQUEST),
+    COUPON_NOT_ACTIVE(400, "Mã coupon không hoạt động", HttpStatus.BAD_REQUEST),
 
     // User
     USER_NOT_FOUND          (404, "Không tìm thấy người dùng",          HttpStatus.NOT_FOUND),

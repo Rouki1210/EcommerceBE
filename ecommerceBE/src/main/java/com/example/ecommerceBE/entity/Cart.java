@@ -13,24 +13,25 @@ import java.util.List;
 })
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(nullable = false)
-    private Boolean checkedOut = false;
+//    @Column(nullable = false)
+//    private Boolean checkedOut = false;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems;
 
-    @OneToMany(mappedBy = "cart")
-    private List<Order> orders;
+//    @OneToMany(mappedBy = "cart")
+//    private List<Order> orders;
 
     @CreationTimestamp
     @Column(updatable = false)

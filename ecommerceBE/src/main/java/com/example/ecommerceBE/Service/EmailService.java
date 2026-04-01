@@ -18,6 +18,9 @@ public class EmailService {
     @Value("${server.port:8080}")
     private int serverPort;
 
+    @Value("${app.backend.base-url:http://localhost:${server.port:8080}}")
+    private String backendBaseUrl;
+
     @Value("${spring.mail.username:}")
     private String fromEmail;
 
@@ -32,14 +35,12 @@ public class EmailService {
             System.out.println("[DEV] Gửi email xác thực:");
             System.out.println("  To    : " + to);
             System.out.println("  Token : " + token);
-            System.out.println("  Link  : http://localhost:" + serverPort
-                    + "/api/v1/auth/verify?token=" + token);
+            System.out.println("  Link  : " + buildVerifyUrl(token));
             System.out.println("==================================");
             return;
         }
 
-        String verifyUrl = "http://localhost:" + serverPort
-                + "/auth/verify?token=" + token;
+        String verifyUrl = buildVerifyUrl(token);
 
         String htmlContent = """
                 <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;
@@ -144,5 +145,9 @@ public class EmailService {
                 System.out.println("[MAIL] Lỗi gửi mail: " + e.getMessage());
             throw new RuntimeException("Không thể gửi email: " + e.getMessage());
         }
+    }
+
+    private String buildVerifyUrl(String token) {
+        return backendBaseUrl + "/auth/verify?token=" + token;
     }
 }

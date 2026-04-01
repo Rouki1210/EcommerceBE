@@ -1,0 +1,10 @@
+package com.example.ecommerceBE.Dtos;
+
+import jakarta.validation.constraints.Min;
+import lombok.Data;
+
+@Data
+public class UpdateCartItemRequest {
+    @Min(value = 1, message = "số lượng phải lớn hơn 0")
+    private Integer quantity;
+}

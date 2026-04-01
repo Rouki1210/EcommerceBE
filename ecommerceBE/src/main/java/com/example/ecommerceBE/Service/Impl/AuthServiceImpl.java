@@ -1,15 +1,16 @@
 package com.example.ecommerceBE.Service.Impl;
 
+import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.Dtos.Auth.*;
-import com.example.ecommerceBE.constant.MessageConstants;
+import com.example.ecommerceBE.Repository.UserRepository;
+import com.example.ecommerceBE.Service.EmailService;
+import com.example.ecommerceBE.Service.Interface.AuthService;
 import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Provider;
 import com.example.ecommerceBE.entity.enums.Role;
-import com.example.ecommerceBE.Repository.UserRepository;
-import com.example.ecommerceBE.Service.Interface.AuthService;
-import com.example.ecommerceBE.Service.EmailService;
-import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.entity.enums.Status;
+import com.example.ecommerceBE.exception.AppException;
+import com.example.ecommerceBE.exception.ErrorCode;
 import com.example.ecommerceBE.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +42,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException(MessageConstants.EMAIL_ALREADY_EXISTS);
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
         }
 
         String verifyToken = UUID.randomUUID().toString();
@@ -59,49 +64,53 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
-        if (!devMode) {String fullName = request.getFirstName() + " " + request.getLastName();
-            emailService.sendVerifyEmail(user.getEmail(), fullName, verifyToken);}
-
+        if (!devMode) {
+            String fullName = request.getFirstName() + " " + request.getLastName();
+            emailService.sendVerifyEmail(user.getEmail(), fullName, verifyToken);
+        }
 
         return registerMapper.toRegisterResponse(user);
     }
 
     @Override
-    public String verifyEmail(String token) {
+    public void verifyEmail(String token) {
         User user = userRepository.findByVerifyToken(token)
-                .orElseThrow(() -> new RuntimeException(MessageConstants.INVALID_TOKEN));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
 
         if (user.getVerifyTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException(MessageConstants.TOKEN_EXPIRED);
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
 
         user.setStatus(Status.ACTIVE);
         user.setVerifyToken(null);
         user.setVerifyTokenExpiry(null);
         userRepository.save(user);
-
-        return MessageConstants.VERIFY_SUCCESS;
     }
 
     @Override
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException(MessageConstants.EMAIL_OR_PASSWORD_INCORRECT));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getRole() == Role.ADMIN) {
-            throw new RuntimeException(MessageConstants.ADMIN_LOGIN_REQUIRED);
+            throw new AppException(ErrorCode.ADMIN_LOGIN);
         }
 
         if (user.getStatus() == Status.INACTIVE) {
-            throw new RuntimeException(MessageConstants.ACCOUNT_NOT_VERIFIED);
+            throw new AppException(ErrorCode.ACCOUNT_NOT_VERIFIED);
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException(MessageConstants.EMAIL_OR_PASSWORD_INCORRECT);
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name(),
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName()
+        );
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
         user.setRefreshToken(refreshToken);
@@ -112,7 +121,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException(MessageConstants.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         String resetToken = UUID.randomUUID().toString();
         user.setResetToken(resetToken);
@@ -128,10 +137,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResetPasswordResponse resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByResetToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException(MessageConstants.INVALID_TOKEN));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
 
         if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException(MessageConstants.TOKEN_EXPIRED);
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -148,14 +157,18 @@ public class AuthServiceImpl implements AuthService {
         String email = jwtUtil.extractEmail(token);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException(MessageConstants.CURRENT_PASSWORD_INCORRECT);
+            throw new AppException(ErrorCode.CURR_PASS_INCORRECT);
         }
 
         if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
-            throw new RuntimeException(MessageConstants.NEW_PASSWORD_SAME_AS_OLD);
+            throw new AppException(ErrorCode.PASSWORD_SAME_AS_OLD);
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -170,7 +183,7 @@ public class AuthServiceImpl implements AuthService {
         String email = jwtUtil.extractEmail(token);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         return userMapper.toUserResponse(user);
     }
@@ -180,13 +193,19 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken = request.getRefreshToken();
 
         if (!jwtUtil.isTokenValid(refreshToken)) {
-            throw new RuntimeException("Refresh token không hợp lệ hoặc đã hết hạn");
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
         User user = userRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new RuntimeException("Refresh token không tồn tại"));
+                .orElseThrow(() -> new AppException(ErrorCode.TOKEN_EXPIRED));
 
-        String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
+        String newAccessToken = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name(),
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName()
+        );
         String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
         user.setRefreshToken(newRefreshToken);
@@ -201,7 +220,7 @@ public class AuthServiceImpl implements AuthService {
         String email = jwtUtil.extractEmail(token);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_EXIST));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -210,19 +229,26 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toUserResponse(user);
     }
 
-    @Override    public LoginResponse adminLogin(LoginRequest request) {
+    @Override
+    public LoginResponse adminLogin(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException(MessageConstants.EMAIL_OR_PASSWORD_INCORRECT));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException(MessageConstants.ACCESS_DENIED);
+            throw new AppException(ErrorCode.ACCESS_DENIED);
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException(MessageConstants.EMAIL_OR_PASSWORD_INCORRECT);
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name(),
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName()
+        );
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
         user.setRefreshToken(refreshToken);
