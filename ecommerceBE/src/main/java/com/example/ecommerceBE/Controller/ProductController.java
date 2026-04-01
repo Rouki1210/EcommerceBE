@@ -37,27 +37,27 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody ProductRequest request) {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> deleteProduct(@PathVariable String id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok("Product deleted successfully");
     }
 
     @PutMapping("/{id}/sale")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Product applySale(@PathVariable String id, @RequestBody ProductSaleRequest request) {
         return productService.applySale(id, request);
     }
 
 
     @PutMapping("/{id}/remove-sale")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Product removeSale(@PathVariable String id) {
         return productService.removeSale(id);
     }

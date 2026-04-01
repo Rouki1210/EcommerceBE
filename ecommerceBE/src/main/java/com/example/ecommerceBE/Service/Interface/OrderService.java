@@ -12,4 +12,5 @@ public interface OrderService{
     List<OrderResponse> getAllOrders();
     void  markPair(String orderId);
     OrderResponse mapToResponse(Order order);
+    List<OrderResponse> getMyOrders(String email);
 }

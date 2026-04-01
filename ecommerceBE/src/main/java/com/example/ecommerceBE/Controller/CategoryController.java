@@ -22,14 +22,14 @@ public class CategoryController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Category createCategory(@RequestBody Category category) {
         return categoryRepository.save(category);
     }
 
     // Sửa danh mục (Update)
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Category> updateCategory(@PathVariable String id, @RequestBody Category categoryRequest) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
@@ -40,7 +40,7 @@ public class CategoryController {
 
     // Xóa danh mục (Delete)
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> deleteCategory(@PathVariable String id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));

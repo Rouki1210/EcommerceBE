@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.PENDING);
 
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("user not fount"));
+                .orElseThrow(() -> new RuntimeException("user not found"));
         order.setUser(user);
 
         order.setShippingAddress(request.getShippingAddress());
@@ -143,5 +144,23 @@ public class OrderServiceImpl implements OrderService {
         res.setUserId(order.getUser().getId());
 
         return res;
+    }
+
+    @Override
+    public List<OrderResponse> getMyOrders(String email) {
+        // 1. Nhờ kho dữ liệu tìm xem cái Email trong Token là của User nào
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Account not found!"));
+
+        // 2. Lấy ra cái ID thật của User đó
+        String realUserId = user.getId();
+
+        // 3. Dùng ID vừa lấy được để móc đơn hàng ra (tái sử dụng luôn kho Order)
+        List<Order> userOrders = orderRepository.findByUserId(realUserId);
+
+        // 4. Chuyển đổi sang DTO trả về cho gọn gàng
+        return userOrders.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 }
