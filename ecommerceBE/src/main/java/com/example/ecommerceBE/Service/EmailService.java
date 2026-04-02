@@ -21,6 +21,9 @@ public class EmailService {
     @Value("${spring.mail.username:}")
     private String fromEmail;
 
+    @Value("${app.frontend.home-url:http://localhost:5173}")
+    private String frontEndurl;
+
     public EmailService(Optional<JavaMailSender> mailSender) {
         this.mailSender = mailSender;
     }
@@ -93,13 +96,12 @@ public class EmailService {
             System.out.println("[DEV] Gửi email reset password:");
             System.out.println("  To    : " + to);
             System.out.println("  Token : " + token);
-            System.out.println("  Link  : http://localhost:" + serverPort
-                    + "/api/v1/auth/reset-password?token=" + token);
+            System.out.println("  Link  : " + backendBaseUrl + "/auth/reset-password?token=" + token);
             System.out.println("==================================");
             return;
         }
 
-        String resetUrl = "http://localhost:8080/auth/reset-password?token=" + token;
+        String resetUrl = backendBaseUrl + "/auth/reset-password?token=" + token;
 
         String htmlContent = """
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;
