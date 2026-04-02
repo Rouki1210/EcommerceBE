@@ -4,40 +4,49 @@ import com.example.ecommerceBE.Dtos.CreateOrderRequest;
 import com.example.ecommerceBE.Dtos.OrderResponse;
 import com.example.ecommerceBE.Service.Interface.OrderService;
 import com.example.ecommerceBE.entity.Order;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/order")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
+
     private final OrderService orderService;
 
-    @PostMapping()
-    public OrderResponse createOrder(@RequestBody CreateOrderRequest request){
-        Order order =  orderService.createOrder(request);
-        return orderService.mapToResponse(order);
+    // User - xem danh sách order của mình
+    @GetMapping("/my-orders")
+    public ResponseEntity<List<OrderResponse>> getMyOrders(
+            @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(orderService.getMyOrders(authHeader));
     }
 
+    // User - xem chi tiết 1 order của mình
     @GetMapping("/{id}")
-    public OrderResponse getOrderById(@PathVariable String id){
-        Order order = this.orderService.getOrderById(id);
-        return  orderService.mapToResponse(order);
+    public ResponseEntity<OrderResponse> getMyOrderById(
+            @PathVariable String id,
+            @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(orderService.getMyOrderById(id, authHeader));
     }
 
-    @GetMapping
-    public List<OrderResponse> getAllOrders() {
-        return orderService.getAllOrders();
+    // User - tạo order từ cart
+    @PostMapping
+    public ResponseEntity<OrderResponse> createOrder(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody CreateOrderRequest request) {
+        return ResponseEntity.ok(orderService.createOrder(authHeader, request));
     }
 
-    // Update order status to PAID (for payment callback)
-    @PutMapping("/{id}/paid")
-    public String markPaid(@PathVariable String id) {
-
-        orderService.markPair(id);
-
-        return "Order marked as PAID";
+    // User - hủy order
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<OrderResponse> cancelOrder(
+            @PathVariable String id,
+            @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(orderService.cancelOrder(id, authHeader));
     }
 }
