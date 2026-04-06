@@ -31,13 +31,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order createOrder(CreateOrderRequest request) {
+    public Order createOrder(CreateOrderRequest request, String id) {
         Order order = new Order();
 
         order.setOrderNumber("ORD-" + System.currentTimeMillis());
         order.setStatus(OrderStatus.PENDING);
 
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("user not found"));
         order.setUser(user);
 
@@ -88,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
             if (coupon.getDiscountAmount() != null) {
                 discount = coupon.getDiscountAmount();
             }
-            else if (coupon.getDiscountAmount() != null) {
+            else if (coupon.getDiscountPercentage() != null) {
                 BigDecimal percentage = new BigDecimal(coupon.getDiscountPercentage());
                 discount = total.multiply(percentage).divide(new BigDecimal(100));
 
@@ -147,18 +147,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getMyOrders(String email) {
-        // 1. Nhờ kho dữ liệu tìm xem cái Email trong Token là của User nào
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Account not found!"));
+    public List<OrderResponse> getMyOrders(String userId) {
 
-        // 2. Lấy ra cái ID thật của User đó
-        String realUserId = user.getId();
+        List<Order> userOrders = orderRepository.findByUserId(userId);
 
-        // 3. Dùng ID vừa lấy được để móc đơn hàng ra (tái sử dụng luôn kho Order)
-        List<Order> userOrders = orderRepository.findByUserId(realUserId);
 
-        // 4. Chuyển đổi sang DTO trả về cho gọn gàng
         return userOrders.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

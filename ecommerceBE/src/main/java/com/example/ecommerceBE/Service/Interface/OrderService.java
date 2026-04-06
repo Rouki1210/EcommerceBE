@@ -7,10 +7,10 @@ import com.example.ecommerceBE.entity.Order;
 import java.util.List;
 
 public interface OrderService{
-    Order createOrder(CreateOrderRequest request);
+    Order createOrder(CreateOrderRequest request, String id);
     Order getOrderById(String orderId);
     List<OrderResponse> getAllOrders();
     void  markPair(String orderId);
     OrderResponse mapToResponse(Order order);
-    List<OrderResponse> getMyOrders(String email);
+    List<OrderResponse> getMyOrders(String userId);
 }
