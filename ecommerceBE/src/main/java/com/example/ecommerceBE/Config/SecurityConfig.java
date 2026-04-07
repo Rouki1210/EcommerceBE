@@ -1,6 +1,7 @@
 package com.example.ecommerceBE.Config;
 
 import com.example.ecommerceBE.Repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +47,16 @@ public class SecurityConfig {
 
                 // BẮT BUỘC CÓ DÒNG NÀY ĐỂ ĐỌC TOKEN KHI THÊM SẢN PHẨM
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Unauthorized - Vui lòng đăng nhập\"}");
+                        })
+                )
+
+
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

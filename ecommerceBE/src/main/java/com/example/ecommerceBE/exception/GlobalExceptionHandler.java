@@ -1,12 +1,14 @@
 package com.example.ecommerceBE.exception;
 
 import com.example.ecommerceBE.Config.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import org.springframework.security.access.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +40,13 @@ public class GlobalExceptionHandler {
                         .message("Dữ liệu không hợp lệ")
                         .data(errors)
                         .build());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN) // Trả về HTTP Status 403
+                .body(ApiResponse.error(403, "Bạn không có quyền truy cập chức năng này!"));
     }
 
     // Fallback
