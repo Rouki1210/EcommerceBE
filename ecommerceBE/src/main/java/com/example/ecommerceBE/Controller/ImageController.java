@@ -3,6 +3,7 @@ package com.example.ecommerceBE.Controller;
 import com.example.ecommerceBE.Service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +18,7 @@ public class ImageController {
 
     // API nhận file ảnh và trả về Link (String)
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             return cloudinaryService.uploadImage(file);

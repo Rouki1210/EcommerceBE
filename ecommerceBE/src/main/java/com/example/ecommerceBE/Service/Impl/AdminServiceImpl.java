@@ -1,16 +1,13 @@
 package com.example.ecommerceBE.Service.Impl;
 
 import com.example.ecommerceBE.Dtos.Auth.UserResponse;
-import com.example.ecommerceBE.Dtos.OrderResponse;
-import com.example.ecommerceBE.Service.Interface.OrderService;
-import com.example.ecommerceBE.exception.AppException;
-import com.example.ecommerceBE.exception.ErrorCode;
 import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Role;
 import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.Interface.AdminService;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.stereotype.Service;
+import com.example.ecommerceBE.mapper.LoginMapper;
 import com.example.ecommerceBE.mapper.UserMapper;
 
 import java.util.List;
@@ -21,7 +18,7 @@ import java.util.stream.Collectors;
 public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final OrderService orderService;
+    private final LoginMapper loginMapper;
 
     @Override
     public List<UserResponse> getAllUsers() {
@@ -42,14 +39,14 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
         return mapToUserResponse(user);
     }
 
     @Override
     public String deleteUser(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
         userRepository.delete(user);
         return "Xóa user thành công!";
     }
@@ -57,12 +54,12 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public UserResponse updateRole(String id, String role) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
 
         try {
             user.setRole(Role.valueOf(role.toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Role không hợp lệ: ");
+            throw new RuntimeException("Role không hợp lệ: " + role);
         }
 
         userRepository.save(user);
@@ -71,26 +68,5 @@ public class AdminServiceImpl implements AdminService {
 
     private UserResponse mapToUserResponse(User user) {
         return userMapper.toUserResponse(user);
-    }
-
-
-    @Override
-    public List<OrderResponse> getAllOrders() {
-        return orderService.getAllOrders();
-    }
-
-    @Override
-    public OrderResponse getOrderById(String id) {
-        return orderService.getOrderById(id);
-    }
-
-    @Override
-    public OrderResponse updateOrderStatus(String id, String status) {
-        return orderService.updateOrderStatus(id, status);
-    }
-
-    @Override
-    public void deleteOrder(String id) {
-        orderService.deleteOrder(id);
     }
 }

@@ -4,7 +4,7 @@ import com.example.ecommerceBE.Dtos.Auth.*;
 
 public interface AuthService {
     RegisterResponse register(RegisterRequest request);
-    void verifyEmail(String token);
+    String verifyEmail(String token);
     LoginResponse login(LoginRequest request);
     ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request);
     ResetPasswordResponse resetPassword(ResetPasswordRequest request);

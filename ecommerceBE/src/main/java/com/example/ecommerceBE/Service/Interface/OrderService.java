@@ -2,17 +2,15 @@ package com.example.ecommerceBE.Service.Interface;
 
 import com.example.ecommerceBE.Dtos.CreateOrderRequest;
 import com.example.ecommerceBE.Dtos.OrderResponse;
+import com.example.ecommerceBE.entity.Order;
 
 import java.util.List;
 
 public interface OrderService{
-    List<OrderResponse> getMyOrders(String authHeader);
-    OrderResponse getMyOrderById(String id, String authHeader);
-    OrderResponse createOrder(String authHeader, CreateOrderRequest request);
-    OrderResponse cancelOrder(String id, String authHeader);
-
+    Order createOrder(CreateOrderRequest request, String id);
+    Order getOrderById(String orderId);
     List<OrderResponse> getAllOrders();
-    OrderResponse getOrderById(String id);
-    OrderResponse updateOrderStatus(String id, String status);
-    void deleteOrder(String id);
+    void  markPair(String orderId);
+    OrderResponse mapToResponse(Order order);
+    List<OrderResponse> getMyOrders(String userId);
 }
