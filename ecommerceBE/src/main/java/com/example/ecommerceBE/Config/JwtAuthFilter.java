@@ -46,10 +46,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String userId = jwtUtil.extractUserId(token);
-        request.setAttribute("id", userId);
-        String email = jwtUtil.extractEmail(token);
-
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
             UsernamePasswordAuthenticationToken auth =
