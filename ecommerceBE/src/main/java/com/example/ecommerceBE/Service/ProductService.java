@@ -44,7 +44,7 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         Product product = new Product();
-        mapRequestToProduct(productRequest, product, category);
+        ProductMapper.mapRequestToEntity(productRequest, product, category);
 
         return productRepository.save(product);
     }

@@ -1,7 +1,13 @@
 package com.example.ecommerceBE.mapper;
 
+import com.example.ecommerceBE.Dtos.ProductRequest;
 import com.example.ecommerceBE.Dtos.ProductResponsive;
+import com.example.ecommerceBE.entity.Category;
 import com.example.ecommerceBE.entity.Product;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ProductMapper {
 
@@ -25,5 +31,23 @@ public class ProductMapper {
         }
 
         return response;
+    }
+    public static void mapRequestToEntity(ProductRequest request, Product product, Category category) {
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(new BigDecimal(request.getPrice()));
+        product.setStock(Integer.parseInt(request.getStock()));
+        product.setSku(request.getSku());
+        product.setImageUrl(request.getImageUrl());
+        product.setCategory(category);
+
+        if (product.getSizes() == null) {
+            product.setSizes(new ArrayList<>());
+        }
+        product.getSizes().clear();
+
+        if (request.getSize() != null && request.getSize().length > 0) {
+            product.getSizes().addAll(Arrays.asList(request.getSize()));
+        }
     }
 }

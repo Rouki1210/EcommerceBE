@@ -10,6 +10,7 @@ import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.Interface.OrderService;
 import com.example.ecommerceBE.entity.*;
 import com.example.ecommerceBE.entity.enums.OrderStatus;
+import com.example.ecommerceBE.mapper.OrderMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CouponRepository couponRepository;
+    private final OrderMapper orderMapper;
 
 
     @Override
@@ -50,9 +52,19 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItemRequest item : request.getItems()) {
 
+            if (item.getQuantity() == null || item.getQuantity() <= 0) {
+                throw new RuntimeException("Insufficient quantity");
+            }
+
             Product product = productRepository
                     .findById(item.getProductId())
-                    .orElseThrow();
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+
+            if (product.getStock() < item.getQuantity()) {
+                throw new com.example.ecommerceBE.exception.AppException(com.example.ecommerceBE.exception.ErrorCode.INSUFFICIENT_STOCK);
+            }
+            product.setStock(product.getStock() - item.getQuantity());
+            productRepository.save(product);
 
             OrderItem orderItem = new OrderItem();
 
@@ -153,7 +165,7 @@ public class OrderServiceImpl implements OrderService {
 
 
         return userOrders.stream()
-                .map(this::mapToResponse)
+                .map(orderMapper::toOrderResponse)
                 .collect(Collectors.toList());
     }
 }
