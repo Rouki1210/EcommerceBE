@@ -38,12 +38,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
+        String email = jwtUtil.extractEmail(token);
+
         if (!jwtUtil.isTokenValid(token)) {
             chain.doFilter(request, response);
             return;
         }
-
-        String email = jwtUtil.extractEmail(token);
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);

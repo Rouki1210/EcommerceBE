@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres?user=postgres.qkjtuyngolacqpyrzfag&password=yVZA5KKyBSUjv2DJ
-    username: postgres
-    password: yVZA5KKyBSUjv2DJ
+    url: DB_URL
+    username: YOUR_USERNAME
+    password: YOUR_PASSWORD
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
@@ -12,8 +12,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: quanhdkk234@gmail.com
-    password: ijknlhvndbafjrfs
+    username: your_APP_EMAIL
+    password: your_APP_PASSWORD
     properties:
       mail:
         smtp:
@@ -40,18 +40,18 @@ server:
 
 app:
   jwt:
-    secret: mySecretKeyMustBeAtLeast256BitsLongForHS256Algorithm!!
+    secret: YOUR_SECRET
     expiration: 86400000
     refresh-expiration: 604800000
   dev-mode: true
 
 cloudinary:
-  cloud-name: di3ejp2lq
-  api-key: 254145199363621
-  api-secret: IIRgk0uGPg-vzB7arArSV-VUty4
+  cloud-name: YOUR_CLOUD_NAME
+  api-key: YOUR_KEY
+  api-secret: YOUR_SECRET
 
 vnpay:
-  tmnCode: G7452IEF
-  secretKey: 59LMY3VUSMSEP4V0KN1XSHYED7D0AFZ7
+  tmnCode: YOUR_CODE
+  secretKey: YOUR_SECRET
   url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   returnUrl: http://localhost:8080/api/payment/vnpay-return
