@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class ForgotPasswordMapper {
     public ForgotPasswordResponse toForgotPasswordResponse(){
         return ForgotPasswordResponse.builder()
-                .message("Email đặt lại mật khẩu đã được gửi!")
+                .message("Email đặt lại mật khẩu đã được gửi!\"")
                 .build();
     }
 }

@@ -1,52 +1,61 @@
 package com.example.ecommerceBE.Controller;
 
+import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.Dtos.CreateOrderRequest;
 import com.example.ecommerceBE.Dtos.OrderResponse;
 import com.example.ecommerceBE.Service.Interface.OrderService;
 import com.example.ecommerceBE.entity.Order;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.oauth2.jwt.Jwt;
+
+import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("api/order")
 @RequiredArgsConstructor
 public class OrderController {
-
     private final OrderService orderService;
 
-    // User - xem danh sách order của mình
-    @GetMapping("/my-orders")
-    public ResponseEntity<List<OrderResponse>> getMyOrders(
-            @RequestHeader("Authorization") String authHeader) {
-        return ResponseEntity.ok(orderService.getMyOrders(authHeader));
+
+    @PostMapping()
+    public OrderResponse createOrder(
+            @RequestBody CreateOrderRequest request,
+            @RequestAttribute("id") String userId) {
+
+        Order order =  orderService.createOrder(request, userId);
+        return orderService.mapToResponse(order);
     }
 
-    // User - xem chi tiết 1 order của mình
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getMyOrderById(
-            @PathVariable String id,
-            @RequestHeader("Authorization") String authHeader) {
-        return ResponseEntity.ok(orderService.getMyOrderById(id, authHeader));
+    public OrderResponse getOrderById(@PathVariable String id){
+        Order order = this.orderService.getOrderById(id);
+        return  orderService.mapToResponse(order);
     }
 
-    // User - tạo order từ cart
-    @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(
-            @RequestHeader("Authorization") String authHeader,
-            @Valid @RequestBody CreateOrderRequest request) {
-        return ResponseEntity.ok(orderService.createOrder(authHeader, request));
+    @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public List<OrderResponse> getAllOrders() {
+        return orderService.getAllOrders();
     }
 
-    // User - hủy order
-    @PutMapping("/{id}/cancel")
-    public ResponseEntity<OrderResponse> cancelOrder(
-            @PathVariable String id,
-            @RequestHeader("Authorization") String authHeader) {
-        return ResponseEntity.ok(orderService.cancelOrder(id, authHeader));
+    // Update order status to PAID (for payment callback)
+    @PutMapping("/{id}/paid")
+    public String markPaid(@PathVariable String id) {
+
+        orderService.markPair(id);
+
+        return "Order marked as PAID";
+    }
+    // API Lấy danh sách đơn hàng của 1 user cụ thể
+    @GetMapping("/my-orders")
+    public List<OrderResponse> getMyOrders(@RequestAttribute("id") String userId) {
+
+
+        return orderService.getMyOrders(userId);
     }
 }

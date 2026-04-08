@@ -1,6 +1,7 @@
 package com.example.ecommerceBE.Config;
 
 import com.example.ecommerceBE.Config.JwtUtil;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,6 +45,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
             return;
         }
+
+        String userId = jwtUtil.extractUserId(token);
+        request.setAttribute("id", userId);
+        String email = jwtUtil.extractEmail(token);
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class ResetPasswordMapper{
     public ResetPasswordResponse toResetPasswordResponse(){
         return ResetPasswordResponse.builder()
-                .message("Email đặt lại mật khẩu đã được gửi!")
+                .message("Đặt lại mật khẩu thành công!")
                 .build();
     }
 }

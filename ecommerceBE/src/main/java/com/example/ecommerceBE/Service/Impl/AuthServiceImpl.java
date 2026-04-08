@@ -1,16 +1,14 @@
 package com.example.ecommerceBE.Service.Impl;
 
-import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.Dtos.Auth.*;
-import com.example.ecommerceBE.Repository.UserRepository;
-import com.example.ecommerceBE.Service.EmailService;
-import com.example.ecommerceBE.Service.Interface.AuthService;
 import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Provider;
 import com.example.ecommerceBE.entity.enums.Role;
+import com.example.ecommerceBE.Repository.UserRepository;
+import com.example.ecommerceBE.Service.Interface.AuthService;
+import com.example.ecommerceBE.Service.EmailService;
+import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.entity.enums.Status;
-import com.example.ecommerceBE.exception.AppException;
-import com.example.ecommerceBE.exception.ErrorCode;
 import com.example.ecommerceBE.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,11 +40,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
-        }
-
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+            throw new RuntimeException("Email đã được sử dụng");
         }
 
         String verifyToken = UUID.randomUUID().toString();
@@ -64,53 +58,49 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
-        if (!devMode) {
-            String fullName = request.getFirstName() + " " + request.getLastName();
-            emailService.sendVerifyEmail(user.getEmail(), fullName, verifyToken);
-        }
+        if (!devMode) {String fullName = request.getFirstName() + " " + request.getLastName();
+            emailService.sendVerifyEmail(user.getEmail(), fullName, verifyToken);}
+
 
         return registerMapper.toRegisterResponse(user);
     }
 
     @Override
-    public void verifyEmail(String token) {
+    public String verifyEmail(String token) {
         User user = userRepository.findByVerifyToken(token)
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
+                .orElseThrow(() -> new RuntimeException("Token không hợp lệ"));
 
         if (user.getVerifyTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+            throw new RuntimeException("Token đã hết hạn");
         }
 
         user.setStatus(Status.ACTIVE);
         user.setVerifyToken(null);
         user.setVerifyTokenExpiry(null);
         userRepository.save(user);
+
+        return "Xác thực email thành công!";
     }
 
     @Override
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
 
         if (user.getRole() == Role.ADMIN) {
-            throw new AppException(ErrorCode.ADMIN_LOGIN);
+            throw new RuntimeException("Vui lòng đăng nhập tại trang quản trị");
         }
 
         if (user.getStatus() == Status.INACTIVE) {
-            throw new AppException(ErrorCode.ACCOUNT_NOT_VERIFIED);
+            throw new RuntimeException("Tài khoản chưa được xác thực email");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
+            throw new RuntimeException("Email hoặc mật khẩu không đúng");
         }
 
-        String token = jwtUtil.generateToken(
-                user.getEmail(),
-                user.getRole().name(),
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName()
-        );
+
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
         user.setRefreshToken(refreshToken);
@@ -121,7 +111,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
 
         String resetToken = UUID.randomUUID().toString();
         user.setResetToken(resetToken);
@@ -137,10 +127,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResetPasswordResponse resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByResetToken(request.getToken())
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
+                .orElseThrow(() -> new RuntimeException("Token không hợp lệ"));
 
         if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+            throw new RuntimeException("Token đã hết hạn");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -155,18 +145,14 @@ public class AuthServiceImpl implements AuthService {
     public ChangePasswordResponse changePassword(String email, ChangePasswordRequest request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.CURR_PASS_INCORRECT);
+            throw new RuntimeException("Mật khẩu hiện tại không đúng");
         }
 
         if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.PASSWORD_SAME_AS_OLD);
-        }
-
-        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+            throw new RuntimeException("Mật khẩu mới không được trùng mật khẩu cũ");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -179,7 +165,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse getMe(String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
         return userMapper.toUserResponse(user);
     }
@@ -189,19 +175,13 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken = request.getRefreshToken();
 
         if (!jwtUtil.isTokenValid(refreshToken)) {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
+            throw new RuntimeException("Refresh token không hợp lệ hoặc đã hết hạn");
         }
 
         User user = userRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new AppException(ErrorCode.TOKEN_EXPIRED));
+                .orElseThrow(() -> new RuntimeException("Refresh token không tồn tại"));
 
-        String newAccessToken = jwtUtil.generateToken(
-                user.getEmail(),
-                user.getRole().name(),
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName()
-        );
+        String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
         String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
         user.setRefreshToken(newRefreshToken);
@@ -214,7 +194,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse updateProfile(String email, UpdateProfileRequest request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -223,26 +203,19 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toUserResponse(user);
     }
 
-    @Override
-    public LoginResponse adminLogin(LoginRequest request) {
+    @Override    public LoginResponse adminLogin(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
+                .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new AppException(ErrorCode.ACCESS_DENIED);
+            throw new RuntimeException("Tài khoản không có quyền truy cập vào trang quản trị");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
+            throw new RuntimeException("Email hoặc mật khẩu không đúng");
         }
 
-        String token = jwtUtil.generateToken(
-                user.getEmail(),
-                user.getRole().name(),
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName()
-        );
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
 
         user.setRefreshToken(refreshToken);
