@@ -142,9 +142,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ChangePasswordResponse changePassword(String authHeader, ChangePasswordRequest request) {
-        String token = authHeader.substring(7);
-        String email = jwtUtil.extractEmail(token);
+    public ChangePasswordResponse changePassword(String email, ChangePasswordRequest request) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
@@ -164,9 +162,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserResponse getMe(String authHeader) {
-        String token = authHeader.substring(7);
-        String email = jwtUtil.extractEmail(token);
+    public UserResponse getMe(String email) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
@@ -195,9 +191,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserResponse updateProfile(String authHeader, UpdateProfileRequest request) {
-        String token = authHeader.substring(7);
-        String email = jwtUtil.extractEmail(token);
+    public UserResponse updateProfile(String email, UpdateProfileRequest request) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));

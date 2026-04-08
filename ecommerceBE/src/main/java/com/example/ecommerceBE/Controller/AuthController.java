@@ -5,6 +5,7 @@ import com.example.ecommerceBE.Service.Interface.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -47,20 +48,21 @@ public class AuthController {
     @PostMapping("/change-password")
     public ResponseEntity<ChangePasswordResponse> changePassword(
             @Valid @RequestBody ChangePasswordRequest request,
-            @RequestHeader("Authorization") String authHeader) {
-        return ResponseEntity.ok(authService.changePassword(authHeader, request));
+            Authentication authentication) {
+        return ResponseEntity.ok(authService.changePassword(authentication.getName(), request));
     }
 
     @PutMapping("/update-profile")
     public ResponseEntity<UserResponse> updateProfile(
             @Valid @RequestBody UpdateProfileRequest request,
-            @RequestHeader("Authorization") String authHeader) {
-        return ResponseEntity.ok(authService.updateProfile(authHeader, request));
+            Authentication authentication) {
+        return ResponseEntity.ok(authService.updateProfile(authentication.getName(), request));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getMe(@RequestHeader("Authorization") String authHeader) {
-        return ResponseEntity.ok(authService.getMe(authHeader));
+    public ResponseEntity<UserResponse> getMe(
+            Authentication authentication) {
+        return ResponseEntity.ok(authService.getMe(authentication.getName()));
     }
 
     @PostMapping("/admin/login")
