@@ -6,6 +6,7 @@ import com.example.ecommerceBE.Dtos.OrderResponse;
 import com.example.ecommerceBE.Service.Interface.OrderService;
 import com.example.ecommerceBE.entity.Order;
 
+import com.example.ecommerceBE.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
+    private final OrderMapper orderMapper;
 
 
     @PostMapping()
@@ -28,7 +30,7 @@ public class OrderController {
             @RequestAttribute("id") String userId) {
 
         Order order =  orderService.createOrder(request, userId);
-        return orderService.mapToResponse(order);
+        return orderMapper.toOrderResponse(order);
     }
 
     @GetMapping("/{id}")

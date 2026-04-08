@@ -1,6 +1,7 @@
 package com.example.ecommerceBE.Dtos;
 
 import lombok.Data;
+import java.util.List;
 
 import java.math.BigDecimal;
 
@@ -11,4 +12,5 @@ public class OrderResponse {
         private String status;
         private BigDecimal totalAmount;
         private String userId;
+        private List<OrderItemResponse> items;
 }

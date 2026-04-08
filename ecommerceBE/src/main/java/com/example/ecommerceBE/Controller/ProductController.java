@@ -21,7 +21,7 @@ public class ProductController {
     private final IProductService productService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Product> createProduct(@RequestBody ProductRequest request) {
         return new ResponseEntity<>(productService.createProduct(request), HttpStatus.CREATED);
     }
@@ -32,14 +32,18 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable String id) {
-        return ResponseEntity.ok(productService.getProductById(id));
+    public ResponseEntity<ProductResponsive> getProductById(@PathVariable String id) {
+        Product product = productService.getProductById(id);
+        ProductResponsive response = com.example.ecommerceBE.mapper.ProductMapper.mapToResponse(product);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody ProductRequest request) {
-        return ResponseEntity.ok(productService.updateProduct(id, request));
+    public ResponseEntity<ProductResponsive> updateProduct(@PathVariable String id, @RequestBody ProductRequest request) {
+        Product product = productService.updateProduct(id, request);
+        ProductResponsive response = com.example.ecommerceBE.mapper.ProductMapper.mapToResponse(product);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

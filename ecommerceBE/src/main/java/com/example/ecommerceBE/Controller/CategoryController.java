@@ -1,5 +1,6 @@
 package com.example.ecommerceBE.Controller;
 
+import com.example.ecommerceBE.Dtos.CreateCategoryRequest;
 import com.example.ecommerceBE.Repository.CategoryRepository;
 import com.example.ecommerceBE.entity.Category;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +24,28 @@ public class CategoryController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Category createCategory(@RequestBody Category category) {
-        return categoryRepository.save(category);
+    public ResponseEntity<Category> createCategory( @RequestBody CreateCategoryRequest request) { // 👉 Hứng CategoryRequest
+
+
+        Category category = new Category();
+
+
+        category.setName(request.getName());
+        category.setDescription(request.getDescription());
+        category.setSlug(request.getSlug());
+        category.setImageUrl(request.getImageUrl());
+
+        if(request.getIsActive() != null) {
+            category.setIsActive(request.getIsActive());
+        }
+
+
+        Category savedCategory = categoryRepository.save(category);
+
+        return ResponseEntity.ok(savedCategory);
     }
 
-    // Sửa danh mục (Update)
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Category> updateCategory(@PathVariable String id, @RequestBody Category categoryRequest) {

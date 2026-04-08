@@ -66,7 +66,17 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST,"/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/auth/login",
+                                "/auth/register",
+                                "/auth/refresh",
+                                "/auth/forgot-password",
+                                "/auth/reset-password"
+                        ).permitAll()
+
+                        .requestMatchers(HttpMethod.GET,
+                                "/auth/verify"
+                        ).permitAll()
 
 
                         // GET: Cho phép tất cả mọi người xem sản phẩm
