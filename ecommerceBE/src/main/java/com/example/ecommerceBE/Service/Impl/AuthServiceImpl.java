@@ -9,6 +9,8 @@ import com.example.ecommerceBE.Service.Interface.AuthService;
 import com.example.ecommerceBE.Service.EmailService;
 import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.entity.enums.Status;
+import com.example.ecommerceBE.exception.AppException;
+import com.example.ecommerceBE.exception.ErrorCode;
 import com.example.ecommerceBE.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email đã được sử dụng");
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         String verifyToken = UUID.randomUUID().toString();
@@ -68,10 +70,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String verifyEmail(String token) {
         User user = userRepository.findByVerifyToken(token)
-                .orElseThrow(() -> new RuntimeException("Token không hợp lệ"));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
 
         if (user.getVerifyTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token đã hết hạn");
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
 
         user.setStatus(Status.ACTIVE);
@@ -85,18 +87,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         if (user.getRole() == Role.ADMIN) {
             throw new RuntimeException("Vui lòng đăng nhập tại trang quản trị");
         }
 
         if (user.getStatus() == Status.INACTIVE) {
-            throw new RuntimeException("Tài khoản chưa được xác thực email");
+            throw new AppException(ErrorCode.ACCOUNT_NOT_VERIFIED);
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Email hoặc mật khẩu không đúng");
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
 
 
@@ -111,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         String resetToken = UUID.randomUUID().toString();
         user.setResetToken(resetToken);
@@ -127,10 +129,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResetPasswordResponse resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByResetToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Token không hợp lệ"));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
 
         if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token đã hết hạn");
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -148,11 +150,11 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException("Mật khẩu hiện tại không đúng");
+            throw new AppException(ErrorCode.PASSWORD_INCORRECT);
         }
 
         if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
-            throw new RuntimeException("Mật khẩu mới không được trùng mật khẩu cũ");
+            throw new AppException(ErrorCode.PASSWORD_SAME_AS_OLD);
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -165,7 +167,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse getMe(String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         return userMapper.toUserResponse(user);
     }
@@ -206,14 +208,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse adminLogin(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không đúng"));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         if (user.getRole() != Role.ADMIN) {
             throw new RuntimeException("Tài khoản không có quyền truy cập vào trang quản trị");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Email hoặc mật khẩu không đúng");
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
