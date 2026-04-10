@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products") // Thêm /api để chuẩn hóa đường dẫn
+@RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductController {
 
@@ -55,8 +55,9 @@ public class ProductController {
 
     @PutMapping("/{id}/sale")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Product applySale(@PathVariable String id, @RequestBody ProductSaleRequest request) {
-        return productService.applySale(id, request);
+    public ProductResponsive applySale(@PathVariable String id, @RequestBody ProductSaleRequest request) {
+        Product product = productService.applySale(id, request);
+        return com.example.ecommerceBE.mapper.ProductMapper.mapToResponse(product);
     }
 
 

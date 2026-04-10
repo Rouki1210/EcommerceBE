@@ -49,5 +49,16 @@ public class ProductMapper {
         if (request.getSize() != null && request.getSize().length > 0) {
             product.getSizes().addAll(Arrays.asList(request.getSize()));
         }
+        product.setOriginalPrice(request.getOriginalPrice());
+
+        if (request.getBadge() != null && !request.getBadge().trim().isEmpty()) {
+            try {
+                product.setBadge(com.example.ecommerceBE.entity.enums.Badge.valueOf(request.getBadge()));
+            } catch (IllegalArgumentException e) {
+                product.setBadge(null);
+            }
+        } else {
+            product.setBadge(null);
+        }
     }
 }
