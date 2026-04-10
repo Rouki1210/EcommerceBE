@@ -1,8 +1,10 @@
 package com.example.ecommerceBE.Service.Impl;
 
+import com.example.ecommerceBE.Repository.OrderRepository;
 import com.example.ecommerceBE.Service.Interface.IPaypalService;
 import com.example.ecommerceBE.Service.Interface.OrderService;
 import com.example.ecommerceBE.entity.Order;
+import com.example.ecommerceBE.entity.enums.OrderStatus;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
@@ -17,7 +19,8 @@ import java.util.List;
 public class PaypalServiceImpl implements IPaypalService {
     @Autowired
     private PayPalHttpClient client;
-    private OrderService orderService;
+    @Autowired
+    private OrderRepository orderRepository;
 
     public String createPaypalPayment(Order order) throws Exception {
 
@@ -32,7 +35,7 @@ public class PaypalServiceImpl implements IPaypalService {
                         .cancelUrl("http://localhost:8080/api/payment/paypal/cancel"))
                 .purchaseUnits(List.of(
                         new PurchaseUnitRequest()
-                                .referenceId(order.getId())
+                                .referenceId(order.getId().toString())
                                 .amountWithBreakdown(new AmountWithBreakdown()
                                         .currencyCode("USD")
                                         .value(usd.toString())
@@ -62,8 +65,10 @@ public class PaypalServiceImpl implements IPaypalService {
 
             String orderId = paypalOrder.purchaseUnits().get(0).referenceId();
 
-            orderService.markPair(orderId);
-            return "SUCCESS";
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
+            order.setStatus(OrderStatus.PROCESSING);
+            orderRepository.save(order);
         }
 
         return "FAILED";

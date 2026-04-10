@@ -73,10 +73,12 @@ public class SecurityConfig {
                                 "/auth/forgot-password",
                                 "/auth/reset-password",
                                 "auth/admin/login"
+
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.GET,
-                                "/auth/verify"
+                                "/auth/verify",
+                                "/api/payment/paypal/success"
                         ).permitAll()
 
 
@@ -84,11 +86,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
 
-                        // POST/PUT/DELETE: Chỉ ADMIN mới được phép
-//                        .requestMatchers(HttpMethod.POST, "/api/products").hasAuthority("ADMIN")
-//                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyAuthority("ADMIN")
-//                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
-//                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
 
 
                         .anyRequest().authenticated()

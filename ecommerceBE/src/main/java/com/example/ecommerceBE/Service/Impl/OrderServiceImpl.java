@@ -147,15 +147,9 @@ public class OrderServiceImpl implements OrderService {
 
     public OrderResponse mapToResponse(Order order){
 
-        OrderResponse res = new OrderResponse();
 
-        res.setId(order.getId());
-        res.setOrderNumber(order.getOrderNumber());
-        res.setStatus(order.getStatus().name());
-        res.setTotalAmount(order.getTotalAmount());
-        res.setUserId(order.getUser().getId());
+        return orderMapper.toOrderResponse(order);
 
-        return res;
     }
 
     @Override
