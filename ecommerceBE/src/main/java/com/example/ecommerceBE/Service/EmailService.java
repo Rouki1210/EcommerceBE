@@ -21,8 +21,11 @@ public class EmailService {
     @Value("${spring.mail.username:}")
     private String fromEmail;
 
-    @Value("${app.frontend.home-url:http://localhost:5173}")
+    @Value("${app.frontend.home-url}")
     private String frontEndurl;
+
+    @Value("${app.backend.base-url}")
+    private backendBaseUrl;
 
     public EmailService(Optional<JavaMailSender> mailSender) {
         this.mailSender = mailSender;
