@@ -11,6 +11,5 @@ public class OrderResponse {
         private String orderNumber;
         private String status;
         private BigDecimal totalAmount;
-        private String userId;
         private List<OrderItemResponse> items;
 }
