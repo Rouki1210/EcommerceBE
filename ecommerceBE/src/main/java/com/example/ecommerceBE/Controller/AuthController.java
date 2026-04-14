@@ -9,7 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -50,19 +50,6 @@ public class AuthController {
             @Valid @RequestBody ChangePasswordRequest request,
             Authentication authentication) {
         return ResponseEntity.ok(authService.changePassword(authentication.getName(), request));
-    }
-
-    @PutMapping("/update-profile")
-    public ResponseEntity<UserResponse> updateProfile(
-            @Valid @RequestBody UpdateProfileRequest request,
-            Authentication authentication) {
-        return ResponseEntity.ok(authService.updateProfile(authentication.getName(), request));
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<UserResponse> getMe(
-            Authentication authentication) {
-        return ResponseEntity.ok(authService.getMe(authentication.getName()));
     }
 
     @PostMapping("/admin/login")

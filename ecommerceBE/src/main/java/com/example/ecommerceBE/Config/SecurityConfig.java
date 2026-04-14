@@ -67,13 +67,12 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,
-                                "/auth/login",
-                                "/auth/register",
-                                "/auth/refresh",
-                                "/auth/forgot-password",
-                                "/auth/reset-password",
-                                "auth/admin/login"
-
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/refresh",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password",
+                                "/api/auth/admin/login"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.GET,

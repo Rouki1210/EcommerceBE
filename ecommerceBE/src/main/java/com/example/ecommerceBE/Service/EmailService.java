@@ -21,12 +21,6 @@ public class EmailService {
     @Value("${spring.mail.username:}")
     private String fromEmail;
 
-    @Value("${app.frontend.home-url}")
-    private String frontEndurl;
-
-    @Value("${app.backend.base-url}")
-    private backendBaseUrl;
-
     public EmailService(Optional<JavaMailSender> mailSender) {
         this.mailSender = mailSender;
     }
@@ -99,12 +93,13 @@ public class EmailService {
             System.out.println("[DEV] Gửi email reset password:");
             System.out.println("  To    : " + to);
             System.out.println("  Token : " + token);
-            System.out.println("  Link  : " + backendBaseUrl + "/auth/reset-password?token=" + token);
+            System.out.println("  Link  : http://localhost:" + serverPort
+                    + "/api/v1/auth/reset-password?token=" + token);
             System.out.println("==================================");
             return;
         }
 
-        String resetUrl = backendBaseUrl + "/auth/reset-password?token=" + token;
+        String resetUrl = "http://localhost:8080/auth/reset-password?token=" + token;
 
         String htmlContent = """
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;
@@ -146,7 +141,7 @@ public class EmailService {
             mailSender.get().send(msg);
             System.out.println("[MAIL] Gửi thành công đến: " + to);
         } catch (MessagingException e) {
-                System.out.println("[MAIL] Lỗi gửi mail: " + e.getMessage());
+            System.out.println("[MAIL] Lỗi gửi mail: " + e.getMessage());
             throw new RuntimeException("Không thể gửi email: " + e.getMessage());
         }
     }

@@ -1,6 +1,5 @@
 package com.example.ecommerceBE.Controller;
 
-import com.example.ecommerceBE.Config.JwtUtil;
 import com.example.ecommerceBE.Dtos.CreateOrderRequest;
 import com.example.ecommerceBE.Dtos.OrderResponse;
 import com.example.ecommerceBE.Service.Interface.OrderService;
@@ -9,11 +8,8 @@ import com.example.ecommerceBE.entity.Order;
 import com.example.ecommerceBE.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -45,7 +41,6 @@ public class OrderController {
         return orderService.getAllOrders();
     }
 
-    // Update order status to PAID (for payment callback)
     @PutMapping("/{id}/paid")
     public String markPaid(@PathVariable String id) {
 
@@ -53,7 +48,7 @@ public class OrderController {
 
         return "Order marked as PAID";
     }
-    // API Lấy danh sách đơn hàng của 1 user cụ thể
+
     @GetMapping("/my-orders")
     public List<OrderResponse> getMyOrders(@RequestAttribute("id") String userId) {
 
