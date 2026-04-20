@@ -5,6 +5,8 @@ import com.example.ecommerceBE.entity.User;
 import com.example.ecommerceBE.entity.enums.Role;
 import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.Interface.AdminService;
+import com.example.ecommerceBE.exception.AppException;
+import com.example.ecommerceBE.exception.ErrorCode;
 import lombok.*;
 import org.springframework.stereotype.Service;
 import com.example.ecommerceBE.mapper.LoginMapper;
@@ -39,14 +41,14 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return mapToUserResponse(user);
     }
 
     @Override
     public String deleteUser(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         userRepository.delete(user);
         return "Xóa user thành công!";
     }
@@ -54,12 +56,12 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public UserResponse updateRole(String id, String role) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         try {
             user.setRole(Role.valueOf(role.toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Role không hợp lệ: " + role);
+            throw new AppException(ErrorCode.INVALID_ROLE);
         }
 
         userRepository.save(user);

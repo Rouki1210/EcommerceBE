@@ -10,6 +10,8 @@ import com.example.ecommerceBE.Repository.UserRepository;
 import com.example.ecommerceBE.Service.Interface.OrderService;
 import com.example.ecommerceBE.entity.*;
 import com.example.ecommerceBE.entity.enums.OrderStatus;
+import com.example.ecommerceBE.exception.AppException;
+import com.example.ecommerceBE.exception.ErrorCode;
 import com.example.ecommerceBE.mapper.OrderMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.PENDING);
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("user not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         order.setUser(user);
 
         order.setShippingAddress(request.getShippingAddress());
@@ -53,12 +55,12 @@ public class OrderServiceImpl implements OrderService {
         for (OrderItemRequest item : request.getItems()) {
 
             if (item.getQuantity() == null || item.getQuantity() <= 0) {
-                throw new RuntimeException("Insufficient quantity");
+                throw new AppException(ErrorCode.INSUFFICIENT_STOCK);
             }
 
             Product product = productRepository
                     .findById(item.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
             if (product.getStock() < item.getQuantity()) {
                 throw new com.example.ecommerceBE.exception.AppException(com.example.ecommerceBE.exception.ErrorCode.INSUFFICIENT_STOCK);
@@ -84,16 +86,16 @@ public class OrderServiceImpl implements OrderService {
 
         if (request.getCouponCode() !=null && !request.getCouponCode().trim().isEmpty()) {
             Coupon coupon = couponRepository.findByCode(request.getCouponCode())
-                    .orElseThrow(() -> new RuntimeException("coupon not found"));
+                    .orElseThrow(() -> new AppException(ErrorCode.COUPON_NOT_FOUND));
 
             if (!coupon.getIsActive() ||
                 coupon.getStartDate().isAfter(LocalDateTime.now()) ||
                 coupon.getEndDate().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("coupon code not found or expired");
+                throw new AppException(ErrorCode.COUPON_NOT_FOUND);
             }
 
             if (coupon.getMinPurchaseAmount() != null && total.compareTo(coupon.getMinPurchaseAmount()) < 0) {
-                throw new RuntimeException("coupon amount not enough");
+                throw new AppException(ErrorCode.COUPON_MIN_ORDER_NOT_MET);
             }
 
             BigDecimal discount = BigDecimal.ZERO;

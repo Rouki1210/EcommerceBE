@@ -3,6 +3,8 @@ package com.example.ecommerceBE.Service;
 import com.example.ecommerceBE.Dtos.CouponRequest;
 import com.example.ecommerceBE.Repository.CouponRepository;
 import com.example.ecommerceBE.entity.Coupon;
+import com.example.ecommerceBE.exception.AppException;
+import com.example.ecommerceBE.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,15 +35,15 @@ public class CouponService {
 
     public Coupon validateAndGetCoupon(String code) {
         Coupon coupon = couponRepository.findByCode(code.toUpperCase())
-                .orElseThrow(() -> new RuntimeException("Coupon not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.COUPON_NOT_FOUND));
 
         LocalDateTime now = LocalDateTime.now();
         if (!coupon.getIsActive() || now.isBefore(coupon.getStartDate()) || now.isAfter(coupon.getEndDate())) {
-            throw new RuntimeException("Coupon has expired or has not been activated");
+            throw new AppException(ErrorCode.COUPON_NOT_ACTIVE);
         }
 
         if (coupon.getUsageLimit() != null && coupon.getUsedCount() >= coupon.getUsageLimit()) {
-            throw new RuntimeException("Coupon is run out of uses");
+            throw new AppException(ErrorCode.COUPON_USAGE_EXCEEDED);
         }
 
         return coupon;

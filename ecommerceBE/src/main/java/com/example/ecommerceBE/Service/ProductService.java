@@ -7,6 +7,8 @@ import com.example.ecommerceBE.Dtos.ProductResponsive;
 import com.example.ecommerceBE.Dtos.ProductSaleRequest;
 import com.example.ecommerceBE.Service.Interface.IProductService;
 import com.example.ecommerceBE.entity.enums.Badge;
+import com.example.ecommerceBE.exception.AppException;
+import com.example.ecommerceBE.exception.ErrorCode;
 import com.example.ecommerceBE.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
 import com.example.ecommerceBE.Dtos.ProductRequest;
@@ -35,13 +37,13 @@ public class ProductService implements IProductService {
     @Override
     public Product getProductById(String id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
     }
 
     @Override
     public Product createProduct(ProductRequest productRequest) {
         Category category = categoryRepository.findById(productRequest.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         Product product = new Product();
         ProductMapper.mapRequestToEntity(productRequest, product, category);
@@ -54,7 +56,7 @@ public class ProductService implements IProductService {
         Product existingProduct = getProductById(id);
 
         Category category = categoryRepository.findById(productRequest.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         mapRequestToProduct(productRequest, existingProduct, category);
 
@@ -71,7 +73,7 @@ public class ProductService implements IProductService {
     @Override
     public Product applySale(String productId, ProductSaleRequest request) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
 
         if (product.getOriginalPrice() == null) {
@@ -91,7 +93,7 @@ public class ProductService implements IProductService {
 
             product.setPrice(calculatedNewPrice);
         } else {
-            throw new RuntimeException("Must enter new price or discount percentage!");
+            throw new AppException(ErrorCode.NEW_PRICE_OR_PERCENT_REQ);
         }
 
         product.setBadge(request.getBadge() != null ? request.getBadge() : Badge.Sale);
@@ -102,7 +104,7 @@ public class ProductService implements IProductService {
     @Override
     public Product removeSale(String productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         if (product.getOriginalPrice() != null) {
             product.setPrice(product.getOriginalPrice());

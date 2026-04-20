@@ -90,7 +90,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         if (user.getRole() == Role.ADMIN) {
-            throw new RuntimeException("Vui lòng đăng nhập tại trang quản trị");
+            throw new AppException(ErrorCode.ADMIN_PAGE);
         }
 
         if (user.getStatus() == Status.INACTIVE) {
@@ -147,7 +147,7 @@ public class AuthServiceImpl implements AuthService {
     public ChangePasswordResponse changePassword(String email, ChangePasswordRequest request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.PASSWORD_INCORRECT);
@@ -177,11 +177,11 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken = request.getRefreshToken();
 
         if (!jwtUtil.isTokenValid(refreshToken)) {
-            throw new RuntimeException("Refresh token không hợp lệ hoặc đã hết hạn");
+            throw new AppException(ErrorCode.INVALID_R_TOKEN);
         }
 
         User user = userRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new RuntimeException("Refresh token không tồn tại"));
+                .orElseThrow(() -> new AppException(ErrorCode.R_TOKEN_NOT_EXIST));
 
         String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getId(), user.getFirstName(), user.getLastName());
         String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getId());
@@ -196,7 +196,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse updateProfile(String email, UpdateProfileRequest request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -211,7 +211,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Tài khoản không có quyền truy cập vào trang quản trị");
+            throw new AppException(ErrorCode.USER_PAGE);
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
