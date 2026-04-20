@@ -1,6 +1,8 @@
 package com.example.ecommerceBE.Config;
 
 import com.example.ecommerceBE.Repository.UserRepository;
+import com.example.ecommerceBE.exception.AppException;
+import com.example.ecommerceBE.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -67,13 +69,12 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,
-                                "/auth/login",
-                                "/auth/register",
-                                "/auth/refresh",
-                                "/auth/forgot-password",
-                                "/auth/reset-password",
-                                "auth/admin/login"
-
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/refresh",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password",
+                                "/api/auth/admin/login"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.GET,
@@ -101,13 +102,12 @@ public class SecurityConfig {
     }
 
     // 3. Ép Spring Security tìm User bằng cách gọi xuống Database/
-
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
             // 1. Tìm User từ Database của bạn
             var user = userRepository.findByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user trong Database"));
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
             // 2. Chuyển đổi (Map) sang UserDetails của Spring Security
             return org.springframework.security.core.userdetails.User.builder()

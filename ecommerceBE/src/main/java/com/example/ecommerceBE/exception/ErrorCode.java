@@ -9,25 +9,32 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS    (400, "Email đã được đăng ký",              HttpStatus.BAD_REQUEST),
     INVALID_CREDENTIALS     (401, "Email hoặc mật khẩu không đúng",     HttpStatus.UNAUTHORIZED),
     ACCOUNT_NOT_VERIFIED    (403, "Tài khoản chưa được xác thực email", HttpStatus.FORBIDDEN),
-    ACCOUNT_LOCKED          (403, "Tài khoản đã bị khóa",              HttpStatus.FORBIDDEN),
-    INVALID_TOKEN           (400, "Token không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
-    TOKEN_EXPIRED           (400, "Token đã hết hạn",                    HttpStatus.BAD_REQUEST),
+    //ACCOUNT_LOCKED          (403, "Tài khoản đã bị khóa",              HttpStatus.FORBIDDEN),
+    INVALID_TOKEN           (401, "Token không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED),
+    TOKEN_EXPIRED           (401, "Token đã hết hạn",                    HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED            (401, "Bạn cần đăng nhập để thực hiện",     HttpStatus.UNAUTHORIZED),
     PASSWORD_NOT_MATCH  (400, "Mật khẩu xác nhận không khớp",           HttpStatus.BAD_REQUEST),
     PASSWORD_SAME_AS_OLD(400, "Mật khẩu mới không được trùng mật khẩu cũ", HttpStatus.BAD_REQUEST),
+    PASSWORD_INCORRECT(400, "Mật khẩu hiện tại không đúng", HttpStatus.BAD_REQUEST),
+    ADMIN_PAGE(403, "Vui lòng đăng nhập tại trang quản trị", HttpStatus.FORBIDDEN),
+    USER_PAGE(403, "Tài khoản không có quyền truy cập vào trang quản trị", HttpStatus.FORBIDDEN),
+    INVALID_R_TOKEN(401, "Refresh token không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED),
+    R_TOKEN_NOT_EXIST(401, "Refresh token không tồn tại", HttpStatus.UNAUTHORIZED),
+
 
     // Product & Category
     PRODUCT_NOT_FOUND       (404, "Không tìm thấy sản phẩm",            HttpStatus.NOT_FOUND),
     PRODUCT_SLUG_EXISTS     (400, "Slug sản phẩm đã tồn tại",           HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_FOUND      (404, "Không tìm thấy danh mục",            HttpStatus.NOT_FOUND),
     CATEGORY_ALREADY_EXISTS (400, "Tên danh mục đã tồn tại",            HttpStatus.BAD_REQUEST),
+    NEW_PRICE_OR_PERCENT_REQ(400, "Phải nhập Giá mới hoặc % giảm giá", HttpStatus.BAD_REQUEST),
 
     // Cart
     CART_ITEM_NOT_FOUND  (404, "Không tìm thấy sản phẩm trong giỏ hàng", HttpStatus.NOT_FOUND),
     INSUFFICIENT_STOCK   (400, "Sản phẩm không đủ tồn kho",              HttpStatus.BAD_REQUEST),
 
     // Wishlist
-    WISHLIST_ITEM_NOT_FOUND (404, "Sản phẩm không có trong wishlist",    HttpStatus.NOT_FOUND),
+//    WISHLIST_ITEM_NOT_FOUND (404, "Sản phẩm không có trong wishlist",    HttpStatus.NOT_FOUND),
 
     // Order
     ORDER_NOT_FOUND       (404, "Không tìm thấy đơn hàng",              HttpStatus.NOT_FOUND),
@@ -40,12 +47,16 @@ public enum ErrorCode {
     COUPON_EXPIRED        (400, "Mã coupon đã hết hạn",                 HttpStatus.BAD_REQUEST),
     COUPON_USAGE_EXCEEDED (400, "Mã coupon đã hết lượt sử dụng",        HttpStatus.BAD_REQUEST),
     COUPON_MIN_ORDER_NOT_MET(400,"Đơn hàng chưa đạt giá trị tối thiểu để dùng coupon", HttpStatus.BAD_REQUEST),
+    COUPON_NOT_ACTIVE(400, "Mã coupon hết hạn hoặc chưa kích hoạt", HttpStatus.BAD_REQUEST),
 
     // User
     USER_NOT_FOUND          (404, "Không tìm thấy người dùng",          HttpStatus.NOT_FOUND),
 
+    //Admin
+    INVALID_ROLE(400, "Role Không Hợp Lệ", HttpStatus.BAD_REQUEST),
+
     // Address
-    ADDRESS_NOT_FOUND (404, "Không tìm thấy địa chỉ", HttpStatus.NOT_FOUND),
+//    ADDRESS_NOT_FOUND (404, "Không tìm thấy địa chỉ", HttpStatus.NOT_FOUND),
 
     // Generic
     FORBIDDEN               (403, "Bạn không có quyền thực hiện",       HttpStatus.FORBIDDEN),
