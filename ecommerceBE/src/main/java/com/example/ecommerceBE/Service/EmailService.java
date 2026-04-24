@@ -15,7 +15,7 @@ public class EmailService {
 
     private final Optional<JavaMailSender> mailSender;
 
-    @Value("${server.port:8080}")
+    @Value("${server.port:}")
     private int serverPort;
 
     @Value("${spring.mail.username:}")
