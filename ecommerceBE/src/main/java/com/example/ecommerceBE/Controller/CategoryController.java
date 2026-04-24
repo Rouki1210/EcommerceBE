@@ -31,9 +31,9 @@ public class CategoryController {
 
 
         category.setName(request.getName());
-        category.setDescription(request.getDescription());
-        category.setSlug(request.getSlug());
-        category.setImageUrl(request.getImageUrl());
+//        category.setDescription(request.getDescription());
+//        category.setSlug(request.getSlug());
+//        category.setImageUrl(request.getImageUrl());
 
         if(request.getIsActive() != null) {
             category.setIsActive(request.getIsActive());

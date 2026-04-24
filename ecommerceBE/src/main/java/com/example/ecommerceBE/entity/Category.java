@@ -23,14 +23,14 @@ public class Category {
 
     @Column(nullable = false)
     private String name;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(nullable = false, unique = true)
-    private String slug;
-
-    private String imageUrl;
+//
+//    @Column(columnDefinition = "TEXT")
+//    private String description;
+//
+//    @Column(nullable = false, unique = true)
+//    private String slug;
+//
+//    private String imageUrl;
 
     @Column(nullable = false)
     private Boolean isActive = true;

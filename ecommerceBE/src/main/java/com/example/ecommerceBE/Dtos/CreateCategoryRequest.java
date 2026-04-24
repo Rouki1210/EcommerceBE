@@ -9,12 +9,12 @@ public class CreateCategoryRequest {
 
     private String name;
 
-    private String description;
-
-
-    private String slug;
-
-    private String imageUrl;
+//    private String description;
+//
+//
+//    private String slug;
+//
+//    private String imageUrl;
 
     private Boolean isActive = true;
 }
